@@ -1,8 +1,11 @@
 import { apiRequest } from './client';
 import type { Expense, CreateExpenseData, UpdateExpenseData, MonthlyTotal } from '../types';
 
-export async function getExpenses(): Promise<Expense[]> {
-  return apiRequest<Expense[]>('/expenses');
+export async function getExpenses(search?: string): Promise<Expense[]> {
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  const query = params.toString() ? `?${params}` : '';
+  return apiRequest<Expense[]>(`/expenses${query}`);
 }
 
 export async function getExpense(id: number): Promise<Expense> {

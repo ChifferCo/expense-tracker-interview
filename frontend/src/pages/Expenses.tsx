@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { useState, useDeferredValue } from 'react';
+import { Plus, Search } from 'lucide-react';
 import { useExpenses, useCreateExpense, useUpdateExpense, useDeleteExpense } from '../hooks/useExpenses';
 import { ExpenseList } from '../components/ExpenseList';
 import { ExpenseForm } from '../components/ExpenseForm';
@@ -7,7 +7,10 @@ import { Modal } from '../components/Modal';
 import type { Expense, CreateExpenseData } from '../types';
 
 export function Expenses() {
-  const { data: expenses, isLoading } = useExpenses();
+  const [searchQuery, setSearchQuery] = useState('');
+  const deferredSearch = useDeferredValue(searchQuery);
+
+  const { data: expenses, isLoading } = useExpenses(deferredSearch || undefined);
   const createExpense = useCreateExpense();
   const updateExpense = useUpdateExpense();
   const deleteExpense = useDeleteExpense();
@@ -71,6 +74,19 @@ export function Expenses() {
           <Plus className="w-4 h-4 mr-2" />
           Add Expense
         </button>
+      </div>
+
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
+        </div>
+        <input
+          type="text"
+          placeholder="Search expenses..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        />
       </div>
 
       {isLoading ? (

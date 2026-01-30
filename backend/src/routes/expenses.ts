@@ -28,7 +28,7 @@ router.use(authenticateToken);
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { user } = req as AuthRequest;
-    const { limit, offset, startDate, endDate } = req.query;
+    const { limit, offset, startDate, endDate, search } = req.query;
 
     const expenses = await expenseService.listExpenses({
       userId: user.userId,
@@ -36,6 +36,7 @@ router.get('/', async (req: Request, res: Response) => {
       offset: offset ? Number(offset) : undefined,
       startDate: startDate as string | undefined,
       endDate: endDate as string | undefined,
+      search: search as string | undefined,
     });
 
     res.json(expenses);

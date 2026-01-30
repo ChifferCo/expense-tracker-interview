@@ -22,6 +22,7 @@ interface ListExpensesParams {
   offset?: number;
   startDate?: string;
   endDate?: string;
+  search?: string;
 }
 
 export async function listExpenses({
@@ -30,6 +31,7 @@ export async function listExpenses({
   offset = 0,
   startDate,
   endDate,
+  search,
 }: ListExpensesParams): Promise<ExpenseWithCategory[]> {
   let query = db('expenses')
     .join('categories', 'expenses.categoryId', 'categories.id')
@@ -48,6 +50,9 @@ export async function listExpenses({
   }
   if (endDate) {
     query = query.where('expenses.date', '<=', endDate);
+  }
+  if (search) {
+    query = query.where('expenses.description', 'like', `%${search}%`);
   }
 
   return query;
