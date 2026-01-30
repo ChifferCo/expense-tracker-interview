@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+import logger from '../logger.js';
 import { authenticateToken } from '../middleware/auth.js';
 import * as expenseService from '../services/expenseService.js';
 import type { JwtPayload } from '../types/index.js';
@@ -38,7 +39,8 @@ router.get('/', async (req: Request, res: Response) => {
     });
 
     res.json(expenses);
-  } catch {
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to list expenses');
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -52,7 +54,8 @@ router.get('/monthly-total', async (req: Request, res: Response) => {
 
     const total = await expenseService.getMonthlyTotal(user.userId, year, month);
     res.json({ total, year, month });
-  } catch {
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to get monthly total');
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -69,7 +72,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json(expense);
-  } catch {
+  } catch (error) {
+    logger.error({ err: error, expenseId: req.params.id }, 'Failed to get expense');
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -84,12 +88,15 @@ router.post('/', async (req: Request, res: Response) => {
       ...data,
     });
 
+    logger.info({ userId: user.userId, expenseId: expense.id }, 'Expense created');
     res.status(201).json(expense);
   } catch (error) {
     if (error instanceof z.ZodError) {
+      logger.info({ errors: error.errors }, 'Expense creation validation failed');
       res.status(400).json({ error: 'Invalid input', details: error.errors });
       return;
     }
+    logger.error({ err: error }, 'Failed to create expense');
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -106,12 +113,15 @@ router.put('/:id', async (req: Request, res: Response) => {
       return;
     }
 
+    logger.info({ userId: user.userId, expenseId: id }, 'Expense updated');
     res.json(expense);
   } catch (error) {
     if (error instanceof z.ZodError) {
+      logger.info({ errors: error.errors }, 'Expense update validation failed');
       res.status(400).json({ error: 'Invalid input', details: error.errors });
       return;
     }
+    logger.error({ err: error, expenseId: req.params.id }, 'Failed to update expense');
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -127,8 +137,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
       return;
     }
 
+    logger.info({ userId: user.userId, expenseId: id }, 'Expense deleted');
     res.status(204).send();
-  } catch {
+  } catch (error) {
+    logger.error({ err: error, expenseId: req.params.id }, 'Failed to delete expense');
     res.status(500).json({ error: 'Internal server error' });
   }
 });
