@@ -2,6 +2,8 @@
 
 A simple expense tracking application built with React, TypeScript, Node.js, and SQLite.
 
+<img width="1058" height="635" alt="image" src="https://github.com/user-attachments/assets/74719286-c2ba-4d6a-91a7-21920cd9021a" />
+
 ## Project Structure
 
 ```
