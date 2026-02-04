@@ -13,10 +13,8 @@ export function useAnalyzePdfReceipt() {
   });
 }
 
-import type { EmailData } from '../types';
-
 export function useScanEmails() {
   return useMutation({
-    mutationFn: (emails: EmailData[]) => receiptsApi.scanEmails(emails),
+    mutationFn: () => receiptsApi.scanEmails(),
   });
 }

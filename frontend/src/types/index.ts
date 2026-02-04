@@ -144,14 +144,6 @@ export interface ReceiptAnalysisResult {
 }
 
 // Email import types
-export interface EmailData {
-  id: string;
-  from: string;
-  subject: string;
-  date: string;
-  body: string;
-}
-
 export interface DraftExpense {
   emailId: string;
   emailSubject: string;
