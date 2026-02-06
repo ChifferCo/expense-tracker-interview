@@ -7,7 +7,7 @@ import categoryRoutes from './routes/categories.js';
 import importRoutes from './routes/import.js';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
