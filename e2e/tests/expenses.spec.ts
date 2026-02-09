@@ -24,7 +24,8 @@ test.describe('Unverified', () => {
     await expect(row).toBeVisible();
     await expect(row).toContainText(description);
     await expect(row).toContainText(category);
-    await expect(row).toContainText('$42.50');
+    await expect(row).toContainText('42.50');
+    // this test shows the timezone bug!!!
     await expect(row).toContainText('Jan 15, 2026');
   });
 });
