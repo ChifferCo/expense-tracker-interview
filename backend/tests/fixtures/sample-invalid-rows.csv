@@ -1,0 +1,6 @@
+Date,Amount,Description,Category
+2024-01-15,50.00,Valid expense,Food
+invalid-date,25.00,Bad date row,Transport
+2024-01-17,,Missing amount,Food
+2024-01-18,100.00,,Missing description
+2024-01-19,-50.00,Negative amount,Other
