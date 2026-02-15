@@ -9,6 +9,26 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
     include: ['tests/**/*.test.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      include: [
+        'src/components/**/*.tsx',
+        'src/pages/**/*.tsx',
+        'src/hooks/**/*.ts',
+      ],
+      exclude: [
+        'src/main.tsx',
+        'src/App.tsx',
+        'src/api/**',
+        'src/types/**',
+      ],
+      thresholds: {
+        lines: 70,
+        functions: 70,
+        branches: 70,
+      },
+    },
   },
   resolve: {
     alias: {

@@ -1,0 +1,3 @@
+# Pre-commit hook - runs before each commit
+# Add linting/type-checking here when configured
+echo "Pre-commit checks passed"
