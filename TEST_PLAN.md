@@ -78,69 +78,66 @@
 ## Phase 1: Test Infrastructure
 
 ### Goals
-- [ ] Configure separate test database
+- [x] Configure separate test database (`DATABASE_PATH` env var)
+- [x] Set up database reset for test runs (`e2e/global-setup.ts`)
 - [ ] Create reusable test user fixtures
-- [ ] Set up database reset for test runs
 - [ ] Create test helpers and utilities
 
-### 1.1 Database Isolation
+### 1.1 Database Isolation (Implemented)
 
 **Problem:** Shared database causes test data accumulation, flaky tests, and unpredictable state.
 
-**Solution:** Environment-based database configuration.
+**Solution:** Environment-based database configuration using `DATABASE_PATH` env var.
+
+| Database | Path | Purpose |
+|----------|------|---------|
+| `data.db` | Default | Development |
+| `test.db` | `DATABASE_PATH=test.db` | E2E tests |
+| `:memory:` | In-memory | Unit/integration tests |
 
 **File: `backend/src/db/knexfile.ts`**
 ```typescript
 import type { Knex } from 'knex';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const baseConfig: Partial<Knex.Config> = {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// DATABASE_PATH env var allows switching databases
+const dbFilename = process.env.DATABASE_PATH || 'data.db';
+const dbPath = dbFilename === ':memory:'
+  ? ':memory:'
+  : path.join(__dirname, '../../', dbFilename);
+
+const config: Knex.Config = {
   client: 'better-sqlite3',
+  connection: { filename: dbPath },
   useNullAsDefault: true,
-  migrations: {
-    directory: path.join(__dirname, 'migrations'),
-    extension: 'ts',
-  },
-  seeds: {
-    directory: path.join(__dirname, 'seeds'),
-    extension: 'ts',
-  },
-};
-
-const config: Record<string, Knex.Config> = {
-  development: {
-    ...baseConfig,
-    connection: { filename: path.join(__dirname, '../../data.db') },
-  },
-  test: {
-    ...baseConfig,
-    connection: { filename: path.join(__dirname, '../../test.db') },
-  },
+  migrations: { directory: path.join(__dirname, 'migrations'), extension: 'ts' },
+  seeds: { directory: path.join(__dirname, 'seeds'), extension: 'ts' },
 };
 
 export default config;
 ```
 
-**File: `backend/src/db/knex.ts`**
-```typescript
-import Knex from 'knex';
-import config from './knexfile.js';
-
-const environment = process.env.NODE_ENV || 'development';
-const db = Knex(config[environment]);
-
-export default db;
-```
-
-**Add npm scripts to `backend/package.json`:**
+**Existing npm scripts in `backend/package.json`:**
 ```json
 {
   "scripts": {
-    "db:migrate:test": "NODE_ENV=test knex migrate:latest",
-    "db:seed:test": "NODE_ENV=test knex seed:run",
-    "db:reset:test": "NODE_ENV=test knex migrate:rollback --all && npm run db:migrate:test && npm run db:seed:test"
+    "db:migrate": "knex migrate:latest --knexfile src/db/knexfile.ts",
+    "db:seed": "knex seed:run --knexfile src/db/knexfile.ts"
   }
 }
+```
+
+**Usage:**
+```bash
+# Development (default)
+npm run dev
+
+# E2E tests (uses test.db)
+DATABASE_PATH=test.db npm run dev
 ```
 
 ### 1.2 Test User Fixtures
@@ -171,29 +168,68 @@ export const TEST_USERS = {
 export const DEMO_USER = TEST_USERS.default;
 ```
 
-### 1.3 Playwright Global Setup
+### 1.3 Playwright Global Setup (Implemented)
 
-**File: `e2e/support/global-setup.ts`**
+**File: `e2e/global-setup.ts`**
 ```typescript
 import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
-export default async function globalSetup() {
-  console.log('Resetting test database...');
-  execSync('npm run db:reset:test', {
-    cwd: '../backend',
+const TEST_DB_PATH = path.join(__dirname, '../backend/test.db');
+
+async function globalSetup() {
+  console.log('=== E2E Test Database Setup ===');
+
+  // Delete existing test database
+  if (fs.existsSync(TEST_DB_PATH)) {
+    fs.unlinkSync(TEST_DB_PATH);
+  }
+
+  // Run migrations
+  execSync('npm run db:migrate', {
+    cwd: path.join(__dirname, '../backend'),
+    env: { ...process.env, DATABASE_PATH: 'test.db' },
     stdio: 'inherit',
-    env: { ...process.env, NODE_ENV: 'test' },
   });
-  console.log('Test database ready.');
+
+  // Seed data
+  execSync('npm run db:seed', {
+    cwd: path.join(__dirname, '../backend'),
+    env: { ...process.env, DATABASE_PATH: 'test.db' },
+    stdio: 'inherit',
+  });
+
+  console.log('Test database ready: backend/test.db');
 }
+
+export default globalSetup;
 ```
 
-**Update `e2e/playwright.config.ts`:**
+**File: `e2e/playwright.config.ts`**
 ```typescript
 export default defineConfig({
-  globalSetup: require.resolve('./support/global-setup.ts'),
-  // ... rest of config
+  globalSetup: './global-setup.ts',
+  // ...
+  webServer: [
+    {
+      // Use cross-env for Windows compatibility
+      command: 'cd ../backend && cross-env DATABASE_PATH=test.db npm run dev',
+      url: 'http://localhost:3002/api/categories',
+      reuseExistingServer: !process.env.CI,
+    },
+    // ...
+  ],
 });
+```
+
+**Root `package.json` dependency:**
+```json
+{
+  "devDependencies": {
+    "cross-env": "^7.0.3"
+  }
+}
 ```
 
 ### 1.4 Backend Test Helpers

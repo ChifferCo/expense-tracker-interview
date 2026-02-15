@@ -6,6 +6,13 @@ import { defineConfig, devices } from '@playwright/test';
  * Configuration for end-to-end tests using Playwright.
  * Tests are organized in the tests/ directory by feature area.
  *
+ * ## Test Database Isolation
+ * E2E tests use a separate database (test.db) from development (data.db).
+ * The global-setup.ts script resets the test database before each test run:
+ * 1. Deletes existing test.db
+ * 2. Runs migrations
+ * 3. Seeds demo user and categories
+ *
  * ## Directory Structure
  * - support/ - Page objects, fixtures, and test utilities
  * - tests/ - Test files organized by category
@@ -20,6 +27,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
+  globalSetup: './global-setup.ts',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -41,7 +49,7 @@ export default defineConfig({
 
   webServer: [
     {
-      command: 'cd ../backend && npm run dev',
+      command: 'cd ../backend && cross-env DATABASE_PATH=test.db npm run dev',
       url: 'http://localhost:3002/api/categories',
       reuseExistingServer: !process.env.CI,
       timeout: 30000,
