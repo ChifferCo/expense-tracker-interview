@@ -1,13 +1,43 @@
 /**
- * @fileoverview Bug documentation tests
- * These tests document known bugs in the application.
- * Tests marked with .fail() are expected to fail, documenting the bug behavior.
+ * @fileoverview Bug Documentation Tests
  *
- * Bug tracking:
- * - BUG-001: Amount field accepts "e" character (scientific notation in number input)
- * - BUG-002: Future dates can be selected for expenses
- * - BUG-003: Dashboard delete button does nothing
- * - BUG-004: Date display off-by-one due to timezone handling
+ * These tests document known bugs in the application. Tests are EXPECTED TO FAIL
+ * because they assert the correct behavior that is currently broken.
+ *
+ * ## Purpose
+ * - Document existing bugs in a structured, executable format
+ * - Serve as regression tests once bugs are fixed
+ * - Provide clear reproduction steps for developers
+ *
+ * ## Bug Tracking
+ *
+ * ### BUG-001: Amount Field Validation (2 tests)
+ * **Issue:** Amount input accepts "e" character (HTML number inputs allow scientific notation)
+ * **Expected:** Only digits and decimal point should be accepted
+ * **Actual:** "1e2" is accepted and interpreted as 100
+ *
+ * ### BUG-002: Future Date Selection (1 test)
+ * **Issue:** Date picker allows selecting future dates for expenses
+ * **Expected:** Future dates should be disabled or show validation error
+ * **Actual:** Future dates are accepted without warning
+ *
+ * ### BUG-003: Dashboard Delete Button (1 test)
+ * **Issue:** Delete button on dashboard's recent expenses does nothing
+ * **Expected:** Should open delete confirmation modal
+ * **Actual:** onClick handler is empty function `() => {}`
+ *
+ * ### BUG-004: Date Timezone Bug (1 test)
+ * **Issue:** Dates may display incorrectly due to timezone handling
+ * **Expected:** Date "2024-06-15" should display as "Jun 15, 2024"
+ * **Actual:** May display as "Jun 14, 2024" depending on timezone
+ *
+ * ## Usage
+ * Run these tests separately to verify bugs still exist:
+ * `npx playwright test e2e/bugs.spec.ts`
+ *
+ * @see frontend/src/components/ExpenseForm.tsx - Amount input bug
+ * @see frontend/src/pages/Dashboard.tsx - Delete button bug
+ * @see frontend/src/components/ExpenseList.tsx - Date display bug
  */
 
 import { test, expect } from '@playwright/test';

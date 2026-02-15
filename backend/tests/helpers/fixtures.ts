@@ -1,3 +1,27 @@
+/**
+ * @fileoverview Test fixtures and factory functions for backend tests
+ *
+ * Provides helper functions to create test users, expenses, and auth tokens.
+ * These fixtures follow the factory pattern for flexible test data creation.
+ *
+ * ## Key Functions
+ * - `createTestUser()` - Creates user with shared test db instance
+ * - `createTestUserInDb(db)` - Creates user with custom db instance (for integration tests)
+ * - `createTestExpense(userId)` - Creates expense for a user
+ * - `getAuthHeaders(token)` - Returns properly formatted auth headers
+ *
+ * @example
+ * // Create a user and get auth token
+ * const { user, token } = await createTestUserInDb(testDb);
+ *
+ * // Use token in API requests
+ * const response = await request(app)
+ *   .get('/api/expenses')
+ *   .set('Authorization', `Bearer ${token}`);
+ *
+ * @see tests/integration/security.test.ts - Example usage in integration tests
+ */
+
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { getTestDb } from './testDb.js';

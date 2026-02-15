@@ -1,8 +1,24 @@
 /**
  * @fileoverview Integration tests for Expenses API endpoints
- * Tests CRUD operations, authentication, pagination, filtering, and user isolation
  *
- * @see src/routes/expenses.ts
+ * Comprehensive tests for expense CRUD operations with real database operations.
+ * All tests follow the AAA (Arrange-Act-Assert) pattern for clarity.
+ *
+ * ## Test Coverage (25 tests)
+ * - Authentication: Token validation, unauthorized access
+ * - GET /api/expenses: List, pagination, date filtering, search, user isolation
+ * - GET /api/expenses/monthly-total: Monthly totals calculation
+ * - GET /api/expenses/:id: Single expense retrieval, ownership validation
+ * - POST /api/expenses: Create with validation
+ * - PUT /api/expenses/:id: Update with validation
+ * - DELETE /api/expenses/:id: Delete with ownership validation
+ *
+ * ## User Isolation
+ * Tests verify that users cannot access or modify other users' expenses.
+ * This is critical for multi-tenant security.
+ *
+ * @see src/routes/expenses.ts - Route handlers under test
+ * @see src/services/expenseService.ts - Business logic under test
  */
 
 import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest';

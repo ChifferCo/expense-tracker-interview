@@ -1,9 +1,40 @@
 /**
  * @fileoverview Unit tests for importService
- * Tests CSV import session management, file parsing, column mapping,
- * row validation, and import confirmation with mocked database
  *
- * @see src/services/importService.ts
+ * Comprehensive tests for CSV import functionality including session management,
+ * file parsing, column mapping, row validation, and import confirmation.
+ * All tests follow the AAA (Arrange-Act-Assert) pattern.
+ *
+ * ## Test Coverage (40 tests)
+ *
+ * ### Session Management
+ * - getActiveSession(): Active session retrieval, no active session
+ * - getSession(): By ID and userId, not found
+ * - createSession(): Cancels existing, creates new with upload status
+ * - cancelSession(): Cancel active, already completed/cancelled
+ *
+ * ### CSV Upload & Parsing
+ * - uploadCsv(): Structure detection, header suggestion, delimiter detection
+ * - Delimiter support: comma, semicolon, tab
+ * - Error handling: Empty CSV, header-only CSV
+ *
+ * ### Column Mapping
+ * - saveMapping(): Parse rows, count valid/invalid, handle missing session
+ *
+ * ### Row Operations
+ * - updateRow(): Update row data, handle missing session/row
+ * - skipRow(): Toggle skip status
+ *
+ * ### Import Confirmation
+ * - confirmImport(): Session status validation, parsed rows validation
+ *
+ * ### CSV Parsing Helpers
+ * - Date parsing: YYYY-MM-DD, MM/DD/YYYY, DD-MM-YYYY formats
+ * - Amount parsing: Currency symbols, parentheses for negatives
+ * - CSV line parsing: Quoted fields with commas, escaped quotes
+ * - Row validation: Missing date, invalid amount, empty description
+ *
+ * @see src/services/importService.ts - Service under test
  */
 
 import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';

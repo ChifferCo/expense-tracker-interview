@@ -1,6 +1,35 @@
 /**
  * @fileoverview E2E tests for dashboard functionality
- * Tests dashboard stats, navigation, and recent expenses
+ *
+ * End-to-end tests for the dashboard page using Playwright.
+ * Tests cover statistics display, navigation, and recent expenses list.
+ *
+ * ## Test Coverage (9 tests)
+ *
+ * ### Dashboard Display
+ * - Dashboard heading visible
+ * - Monthly spending stat displayed
+ * - Total expenses count displayed
+ * - Average per expense displayed
+ * - Recent expenses section visible
+ *
+ * ### Navigation
+ * - Navigate to expenses page
+ * - Navigate to import page
+ * - Navigate back to dashboard
+ *
+ * ### Stats Display
+ * - Dollar amounts properly formatted with $ symbol
+ *
+ * ### Recent Expenses
+ * - Display expense list if expenses exist
+ *
+ * ## Test Setup
+ * - Logs in with demo credentials before each test
+ * - Uses demo@example.com / password123
+ *
+ * @see frontend/src/pages/Dashboard.tsx - Dashboard component
+ * @see backend/src/routes/expenses.ts - Expenses API (monthly-total)
  */
 
 import { test, expect } from '@playwright/test';

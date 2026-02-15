@@ -1,9 +1,42 @@
 /**
  * @fileoverview Security integration tests for input validation
- * Tests that malicious inputs are properly rejected or sanitized
  *
- * @see src/routes/expenses.ts
- * @see src/routes/auth.ts
+ * Tests that malicious inputs are properly rejected or sanitized.
+ * All tests follow the AAA (Arrange-Act-Assert) pattern.
+ *
+ * ## Security Concerns Tested (18 tests)
+ *
+ * ### SQL Injection Protection
+ * - Description field SQL injection (stored safely via Knex parameterization)
+ * - Search parameter SQL injection
+ * - Email field SQL injection (rejected by validation)
+ *
+ * ### XSS Prevention
+ * - Backend stores XSS payloads as plain text (frontend must escape on render)
+ * - HTML entities are preserved, not double-encoded
+ *
+ * ### Input Length Validation
+ * - Maximum description length (255 chars)
+ * - Empty description rejection
+ *
+ * ### Numeric Validation
+ * - Negative amount rejection
+ * - Zero amount rejection
+ * - Non-numeric amount rejection
+ * - Valid decimal amounts accepted
+ *
+ * ### Date Validation
+ * - Invalid date format rejection
+ * - Semantically invalid dates (documents current behavior)
+ *
+ * ### Authentication Security
+ * - Missing token returns 401
+ * - Invalid token returns 403
+ * - Malformed auth header returns 403
+ *
+ * @see src/routes/expenses.ts - Expense validation under test
+ * @see src/routes/auth.ts - Auth validation under test
+ * @see src/middleware/auth.ts - Auth middleware under test
  */
 
 import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest';

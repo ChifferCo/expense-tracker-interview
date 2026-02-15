@@ -1,8 +1,41 @@
 /**
  * @fileoverview Unit tests for Login component
- * Tests login form, register mode, validation, loading states, and error handling
  *
- * @see src/pages/Login.tsx
+ * Tests the Login component which handles both login and registration flows.
+ * All tests follow the AAA (Arrange-Act-Assert) pattern using React Testing Library.
+ *
+ * ## Test Coverage (15 tests)
+ *
+ * ### Login Mode (Default)
+ * - Renders login form with email, password, submit button
+ * - Displays demo credentials hint
+ * - Calls onLogin with credentials on submit
+ * - Disables submit button when loading
+ * - Displays error messages
+ *
+ * ### Register Mode
+ * - Switches to register mode via link
+ * - Hides demo credentials in register mode
+ * - Calls onRegister with credentials on submit
+ * - Displays register-specific error messages
+ * - Disables submit button when loading
+ * - Switches back to login mode
+ *
+ * ### Form Validation
+ * - Email field is required
+ * - Password field is required
+ * - Email input has type="email"
+ * - Password input has type="password"
+ *
+ * ## Props Interface
+ * - onLogin: (credentials) => void
+ * - onRegister: (credentials) => void
+ * - loginError: Error | null
+ * - registerError: Error | null
+ * - isLoginPending: boolean
+ * - isRegisterPending: boolean
+ *
+ * @see src/pages/Login.tsx - Component under test
  */
 
 import { describe, it, expect, vi } from 'vitest';

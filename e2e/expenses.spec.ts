@@ -1,6 +1,43 @@
 /**
  * @fileoverview E2E tests for expense management
- * Tests CRUD operations, search, and filtering
+ *
+ * Comprehensive end-to-end tests for expense CRUD operations using Playwright.
+ * Tests cover the complete expense management workflow.
+ *
+ * ## Test Coverage (13 tests)
+ *
+ * ### Expenses Page
+ * - Display expenses list with search and filter options
+ * - Date filter options visible (All Time, This Month, etc.)
+ *
+ * ### Create Expense
+ * - Open create expense modal
+ * - Create new expense successfully
+ * - Show validation error for empty amount
+ * - Close modal on cancel
+ *
+ * ### Edit Expense
+ * - Edit existing expense with pre-filled data
+ *
+ * ### Delete Expense
+ * - Delete expense with confirmation modal
+ * - Cancel delete operation
+ *
+ * ### Search
+ * - Filter expenses by search query
+ *
+ * ### Date Filtering
+ * - Filter by "This Month"
+ * - Show custom date inputs when Custom selected
+ *
+ * ## Test Patterns
+ * - Creates unique test data using Date.now() timestamps
+ * - Uses li selector with title attribute for Edit/Delete buttons
+ * - Waits for modal transitions before assertions
+ *
+ * @see frontend/src/pages/Expenses.tsx - Expenses page
+ * @see frontend/src/components/ExpenseList.tsx - Expense list component
+ * @see frontend/src/components/ExpenseForm.tsx - Expense form component
  */
 
 import { test, expect } from '@playwright/test';

@@ -1,8 +1,26 @@
 /**
  * @fileoverview Unit tests for expenseService
- * Tests CRUD operations and monthly totals for expenses with mocked database
  *
- * @see src/services/expenseService.ts
+ * Tests expense CRUD operations and monthly totals calculation with mocked database.
+ * All tests follow the AAA (Arrange-Act-Assert) pattern.
+ *
+ * ## Test Coverage (20 tests)
+ * - listExpenses(): Default pagination, custom pagination, date filters, search, ordering
+ * - getExpense(): Found, not found, user ownership enforcement
+ * - createExpense(): Create and return new expense
+ * - updateExpense(): Update existing, not found, ownership enforcement
+ * - deleteExpense(): Delete existing, not found
+ * - getMonthlyTotal(): With expenses, no expenses, leap year handling, month boundaries
+ *
+ * ## Mocking Strategy
+ * Uses a chainable mock pattern to simulate Knex query builder:
+ * ```typescript
+ * chain.join = vi.fn(() => chain);
+ * chain.where = vi.fn(() => chain);
+ * chain.first = vi.fn();
+ * ```
+ *
+ * @see src/services/expenseService.ts - Service under test
  */
 
 import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';

@@ -1,12 +1,37 @@
 /**
- * @fileoverview Security tests
- * Tests for common security vulnerabilities and concerns.
+ * @fileoverview E2E Security Tests
  *
- * Security concerns tested:
- * - SEC-001: XSS protection on user input fields
- * - SEC-002: Demo credentials exposure in UI
- * - SEC-003: SQL injection protection
- * - SEC-004: Authentication token handling
+ * End-to-end tests for common security vulnerabilities and concerns.
+ * Tests verify the application handles malicious inputs safely.
+ *
+ * ## Security Concerns Tested
+ *
+ * ### SEC-001: XSS Protection (3 tests)
+ * - Escape HTML in expense description (script tags)
+ * - Escape HTML entities (img onerror)
+ * - Handle special characters safely (& < > " ' / \)
+ *
+ * ### SEC-002: Credential Exposure (2 tests)
+ * - Demo credentials visible on login page (intentional for demo)
+ * - Password visibility in page source (documented concern)
+ *
+ * ### SEC-003: Input Validation (3 tests)
+ * - Handle very long description input (10000 chars)
+ * - Handle negative amount
+ * - Handle zero amount
+ *
+ * ### SEC-004: Authentication (3 tests)
+ * - Protect routes when logged out
+ * - Clear session on logout
+ * - Reject invalid JWT tokens
+ *
+ * ## Security Philosophy
+ * - Backend stores user input as-is (XSS prevention is frontend responsibility)
+ * - All script tags should be escaped when rendered
+ * - SQL injection is prevented by Knex parameterized queries
+ *
+ * @see backend/tests/integration/security.test.ts - Backend security tests
+ * @see frontend/src/components/ExpenseList.tsx - Frontend XSS escaping
  */
 
 import { test, expect } from '@playwright/test';

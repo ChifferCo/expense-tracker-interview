@@ -1,3 +1,39 @@
+/**
+ * @fileoverview MSW (Mock Service Worker) request handlers for frontend tests
+ *
+ * Provides mock API responses for all endpoints used by the frontend.
+ * These handlers intercept HTTP requests during tests and return predictable data.
+ *
+ * ## Mocked Endpoints
+ *
+ * ### Authentication
+ * - POST /api/auth/login - Returns user/token for valid credentials
+ * - POST /api/auth/register - Returns new user/token or 409 for existing email
+ *
+ * ### Categories
+ * - GET /api/categories - Returns list of 6 predefined categories
+ *
+ * ### Expenses
+ * - GET /api/expenses - Returns filtered list of expenses
+ * - GET /api/expenses/:id - Returns single expense or 404
+ * - POST /api/expenses - Creates new expense
+ * - PUT /api/expenses/:id - Updates existing expense
+ * - DELETE /api/expenses/:id - Deletes expense (204 response)
+ * - GET /api/expenses/monthly-total - Returns monthly total
+ *
+ * ### Import
+ * - GET /api/import/session - Returns 404 (no active session)
+ * - POST /api/import/session - Creates new import session
+ * - GET /api/import/history - Returns empty history
+ *
+ * ## Usage
+ * Handlers are used by the MSW server in tests/mocks/server.ts
+ * which is started in tests/setup.ts before all tests.
+ *
+ * @see tests/mocks/server.ts - MSW server configuration
+ * @see tests/setup.ts - Test setup that starts the server
+ */
+
 import { http, HttpResponse } from 'msw';
 
 // Use wildcard to match both relative and absolute URLs

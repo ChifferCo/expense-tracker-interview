@@ -1,6 +1,34 @@
 /**
  * @fileoverview E2E tests for navigation and layout
- * Tests app structure, navigation links, and responsive layout
+ *
+ * End-to-end tests for the application navigation structure and layout.
+ * Tests cover sidebar navigation, URL routing, and protected routes.
+ *
+ * ## Test Coverage (9 tests)
+ *
+ * ### Layout Structure
+ * - Display navigation sidebar with all links
+ * - Display logout button
+ * - Display app title/logo (ExpenseTracker)
+ *
+ * ### Navigation Links
+ * - Highlight active navigation link
+ * - Navigate to all pages correctly (Dashboard -> Expenses -> Import)
+ *
+ * ### URL Navigation
+ * - Support direct navigation to /expenses
+ * - Support direct navigation to /import
+ * - Redirect unknown routes to dashboard
+ *
+ * ### Protected Routes
+ * - Redirect to login when not authenticated
+ *
+ * ## Test Setup
+ * - Logs in with demo credentials before each test
+ * - Tests direct URL navigation and route protection
+ *
+ * @see frontend/src/components/Layout.tsx - Layout component with sidebar
+ * @see frontend/src/App.tsx - Route definitions
  */
 
 import { test, expect } from '@playwright/test';

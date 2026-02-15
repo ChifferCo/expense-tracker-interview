@@ -1,8 +1,27 @@
 /**
  * @fileoverview Unit tests for authService
- * Tests user registration and login functionality with mocked database
  *
- * @see src/services/authService.ts
+ * Tests user registration and login business logic with mocked database.
+ * All tests follow the AAA (Arrange-Act-Assert) pattern.
+ *
+ * ## Test Coverage (7 tests)
+ * - register(): Success, duplicate email, password hashing
+ * - login(): Success, non-existent user, incorrect password, bcrypt usage
+ *
+ * ## Mocking Strategy
+ * - Database module is mocked to isolate service logic
+ * - Auth middleware's generateToken is mocked to return predictable tokens
+ * - bcrypt operations are spied on to verify password handling
+ *
+ * @example
+ * // Mock setup pattern used:
+ * vi.mock('../../../src/db/knex.js', () => {
+ *   const mockDb = vi.fn();
+ *   mockDb.mockReturnValue({ where: vi.fn(), first: vi.fn() });
+ *   return { default: mockDb };
+ * });
+ *
+ * @see src/services/authService.ts - Service under test
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';

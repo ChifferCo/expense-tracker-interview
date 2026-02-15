@@ -1,8 +1,40 @@
 /**
  * @fileoverview Unit tests for ExpenseForm component
- * Tests create/edit modes, validation, loading states, and category selection
  *
- * @see src/components/ExpenseForm.tsx
+ * Tests the ExpenseForm component in both create and edit modes.
+ * All tests follow the AAA (Arrange-Act-Assert) pattern using React Testing Library.
+ *
+ * ## Test Coverage (11 tests)
+ *
+ * ### Create Mode
+ * - Renders empty form fields
+ * - Calls onSubmit with form data
+ * - Calls onCancel when cancel button clicked
+ *
+ * ### Edit Mode
+ * - Pre-fills form with existing expense data
+ * - Shows "Update" button instead of "Create"
+ *
+ * ### Validation
+ * - Empty amount shows error
+ * - Zero amount shows error
+ * - Empty description shows error
+ * - Empty date shows error
+ *
+ * ### Loading State
+ * - Disables submit button and shows "Saving..."
+ *
+ * ### Category Selection
+ * - Renders category dropdown with options
+ * - Updates categoryId when selection changes
+ *
+ * ## Testing Utilities
+ * - Uses QueryClientProvider wrapper for React Query
+ * - Uses userEvent for realistic user interactions
+ * - Uses MSW for API mocking (categories endpoint)
+ *
+ * @see src/components/ExpenseForm.tsx - Component under test
+ * @see tests/mocks/handlers.ts - MSW handlers for API mocking
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

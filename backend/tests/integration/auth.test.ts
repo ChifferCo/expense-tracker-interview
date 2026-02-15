@@ -1,8 +1,33 @@
 /**
  * @fileoverview Integration tests for Auth API endpoints
- * Tests user registration and login with real database operations
  *
- * @see src/routes/auth.ts
+ * Tests user registration and login with real database operations using
+ * an in-memory SQLite database. All tests follow the AAA (Arrange-Act-Assert)
+ * pattern for clarity and consistency.
+ *
+ * ## Test Coverage
+ * - POST /api/auth/register: Success, duplicate email, validation errors
+ * - POST /api/auth/login: Success, invalid credentials, validation errors
+ *
+ * ## Test Pattern
+ * Uses vi.doMock() for database mocking to ensure routes use the test database.
+ * The mock must be set up before dynamically importing the route modules.
+ *
+ * @example
+ * // AAA Pattern used throughout:
+ * it('should register a new user successfully', async () => {
+ *   // Arrange
+ *   const userData = { email: 'test@example.com', password: 'password123' };
+ *
+ *   // Act
+ *   const response = await request(app).post('/api/auth/register').send(userData);
+ *
+ *   // Assert
+ *   expect(response.status).toBe(201);
+ * });
+ *
+ * @see src/routes/auth.ts - Route handlers under test
+ * @see src/services/authService.ts - Business logic under test
  */
 
 import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest';

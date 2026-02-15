@@ -1,3 +1,23 @@
+/**
+ * @fileoverview Test database utilities for backend integration tests
+ *
+ * Provides in-memory SQLite database management for isolated test execution.
+ * Each test suite can create its own database instance using createTestDb(),
+ * ensuring complete isolation between test files.
+ *
+ * @example
+ * // In a test file
+ * let testDb: Knex;
+ * beforeAll(async () => {
+ *   testDb = createTestDb();
+ *   await testDb.migrate.latest();
+ *   await testDb.seed.run();
+ * });
+ *
+ * @see tests/integration/auth.test.ts - Example integration test using this module
+ * @see tests/integration/expenses.test.ts - Example integration test using this module
+ */
+
 import Knex from 'knex';
 import type { Knex as KnexType } from 'knex';
 import path from 'path';

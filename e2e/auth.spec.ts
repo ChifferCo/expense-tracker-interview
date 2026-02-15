@@ -1,6 +1,36 @@
 /**
  * @fileoverview E2E tests for authentication flows
- * Tests login, registration, logout, and session persistence
+ *
+ * End-to-end tests for the complete authentication user journey using Playwright.
+ * Tests cover the full authentication lifecycle from login to logout.
+ *
+ * ## Test Coverage (11 tests)
+ *
+ * ### Login
+ * - Display login form by default
+ * - Show demo credentials hint
+ * - Login successfully with valid credentials
+ * - Show error for invalid credentials
+ * - Disable submit button while loading
+ *
+ * ### Registration
+ * - Switch to register mode
+ * - Hide demo credentials in register mode
+ * - Register new user successfully
+ * - Switch back to login mode
+ *
+ * ### Logout
+ * - Logout successfully and redirect to login
+ *
+ * ### Session Persistence
+ * - Persist session after page reload
+ *
+ * ## Test Setup
+ * - Clears cookies before each test for isolation
+ * - Uses demo credentials (demo@example.com / password123)
+ *
+ * @see frontend/src/pages/Login.tsx - Login component
+ * @see backend/src/routes/auth.ts - Auth API endpoints
  */
 
 import { test, expect } from '@playwright/test';
