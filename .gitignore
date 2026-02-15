@@ -5,3 +5,16 @@ dist/
 
 .idea
 .claude
+
+# Test coverage reports
+coverage/
+**/coverage/
+*.lcov
+
+# Playwright reports
+playwright-report/
+test-results/
+playwright/.cache/
+
+# Build artifacts
+*.tsbuildinfo
