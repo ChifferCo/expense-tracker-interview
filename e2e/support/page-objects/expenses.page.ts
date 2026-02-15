@@ -70,10 +70,13 @@ export class ExpensesPage {
 
   /**
    * Navigate to the expenses page.
+   * Selects "All Time" filter to ensure all expenses (including future-dated) are visible.
    */
   async goto() {
     await this.page.goto('/expenses');
     await this.expectLoaded();
+    // Select "All Time" to ensure future-dated test expenses are visible
+    await this.selectDateFilter('allTime');
   }
 
   /**
