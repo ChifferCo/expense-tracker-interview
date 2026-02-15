@@ -18,7 +18,14 @@ interface ExpenseOverrides {
 
 export async function createTestUser(overrides: UserOverrides = {}) {
   const db = getTestDb();
+  return createTestUserInDb(db, overrides);
+}
 
+/**
+ * Create a test user with a specific database instance
+ * Use this in integration tests that manage their own db connection
+ */
+export async function createTestUserInDb(db: ReturnType<typeof getTestDb>, overrides: UserOverrides = {}) {
   const email = overrides.email || `test-${Date.now()}@example.com`;
   const password = overrides.password || 'password123';
   const hashedPassword = await bcrypt.hash(password, 10);
