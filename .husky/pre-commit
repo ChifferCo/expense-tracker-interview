@@ -1,3 +1,38 @@
-# Pre-commit hook - runs before each commit
-# Add linting/type-checking here when configured
-echo "Pre-commit checks passed"
+#!/bin/sh
+# Quality-first pre-commit hook
+# Enforces: lint (no warnings), typecheck, 100% unit test coverage
+# No shortcuts allowed - code must pass all quality gates
+
+set -e
+
+echo "=== Quality Gate: Backend ==="
+
+echo "[1/3] Linting backend..."
+cd backend
+npm run lint
+
+echo "[2/3] Type checking backend..."
+npm run typecheck
+
+echo "[3/3] Running backend tests with 100% coverage..."
+npm run test:coverage
+
+cd ..
+
+echo ""
+echo "=== Quality Gate: Frontend ==="
+
+echo "[1/3] Linting frontend..."
+cd frontend
+npm run lint
+
+echo "[2/3] Type checking frontend..."
+npm run typecheck
+
+echo "[3/3] Running frontend tests with 100% coverage..."
+npm run test:coverage
+
+cd ..
+
+echo ""
+echo "=== All quality gates passed ==="

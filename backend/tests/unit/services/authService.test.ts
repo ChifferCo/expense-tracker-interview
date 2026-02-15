@@ -10,12 +10,17 @@ import bcrypt from 'bcryptjs';
 
 // Mock the db module before importing the service
 vi.mock('../../../src/db/knex.js', () => {
-  const mockDb = vi.fn(() => mockDb);
-  Object.assign(mockDb, {
-    where: vi.fn(() => mockDb),
+  const mockDb: ReturnType<typeof vi.fn> & {
+    where: ReturnType<typeof vi.fn>;
+    first: ReturnType<typeof vi.fn>;
+    insert: ReturnType<typeof vi.fn>;
+  } = Object.assign(vi.fn(), {
+    where: vi.fn(),
     first: vi.fn(),
     insert: vi.fn(),
   });
+  mockDb.mockReturnValue(mockDb);
+  mockDb.where.mockReturnValue(mockDb);
   return { default: mockDb };
 });
 

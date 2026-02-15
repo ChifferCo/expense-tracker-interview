@@ -1,5 +1,5 @@
 import { beforeAll, afterAll, afterEach, vi } from 'vitest';
-import { setupTestDb, cleanupTestDb, teardownTestDb, getTestDb } from '../helpers/testDb.js';
+import { setupTestDb, cleanupTestDb, teardownTestDb } from '../helpers/testDb.js';
 
 // Mock the database module to use our test database
 vi.mock('../../src/db/knex.js', async () => {

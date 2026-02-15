@@ -35,4 +35,4 @@ export interface AuthenticatedRequest {
   user: JwtPayload;
 }
 
-export * from './import';
+export * from './import.js';

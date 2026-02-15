@@ -253,5 +253,29 @@ describe('ExpenseForm Component', () => {
       const select = screen.getByLabelText('Category');
       expect(select).toBeInstanceOf(HTMLSelectElement);
     });
+
+    it('should update category when selection changes', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(
+        <ExpenseForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
+        { wrapper: createWrapper() }
+      );
+      // Wait for categories to load (options appear)
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Transport' })).toBeInTheDocument();
+      });
+
+      // Act - change category and submit with valid data
+      await user.selectOptions(screen.getByLabelText('Category'), '2');
+      await user.type(screen.getByLabelText('Amount'), '25');
+      await user.type(screen.getByLabelText('Description'), 'Category test');
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      // Assert
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ categoryId: 2 })
+      );
+    });
   });
 });

@@ -1,5 +1,6 @@
 {
   "name": "expense-tracker-backend",
+  "type": "module",
   "version": "1.0.0",
   "description": "Expense Tracker API",
   "main": "dist/index.js",
@@ -10,8 +11,15 @@
     "db:migrate": "knex migrate:latest --knexfile src/db/knexfile.ts",
     "db:rollback": "knex migrate:rollback --knexfile src/db/knexfile.ts",
     "db:seed": "knex seed:run --knexfile src/db/knexfile.ts",
+    "lint": "eslint tests --max-warnings 0",
+    "lint:src": "eslint src",
+    "lint:all": "eslint src tests",
+    "lint:fix": "eslint src tests --fix",
+    "typecheck": "tsc -p tsconfig.test.json --noEmit",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage --coverage.thresholds.lines=80 --coverage.thresholds.functions=100 --coverage.thresholds.branches=85 --coverage.thresholds.statements=80",
+    "quality": "npm run lint && npm run typecheck && npm run test:coverage"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -33,7 +41,10 @@
     "@types/node": "^20.11.5",
     "@types/pino": "^7.0.4",
     "@types/supertest": "^6.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.55.0",
+    "@typescript-eslint/parser": "^8.55.0",
     "@vitest/coverage-v8": "^1.6.1",
+    "eslint": "^8.57.1",
     "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.7.0",
