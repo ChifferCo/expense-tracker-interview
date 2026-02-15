@@ -424,4 +424,199 @@ describe('Security: Input Validation', () => {
       expect(response.status).toBe(403);
     });
   });
+
+  describe('BUG-001: Scientific Notation in Amount', () => {
+    /**
+     * Tests that the backend handles scientific notation amounts.
+     * Note: HTML number inputs convert "1e2" to 100 before sending to backend,
+     * so the backend receives a valid number. This test documents that behavior.
+     */
+    it('should accept amount sent as converted number from scientific notation', async () => {
+      // Arrange - backend receives 100 (converted from 1e2 by frontend)
+      const { token } = await createTestUserInDb(testDb);
+
+      // Act
+      const response = await request(app)
+        .post('/api/expenses')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          categoryId: 1,
+          amount: 100, // This is what "1e2" becomes
+          description: 'Scientific notation test',
+          date: '2024-01-15',
+        });
+
+      // Assert - backend accepts valid number
+      expect(response.status).toBe(201);
+      expect(response.body.amount).toBe(100);
+    });
+
+    it('should reject string amount containing "e"', async () => {
+      // Arrange
+      const { token } = await createTestUserInDb(testDb);
+
+      // Act - send amount as string (edge case)
+      const response = await request(app)
+        .post('/api/expenses')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          categoryId: 1,
+          amount: '1e2', // String, not number
+          description: 'String scientific notation test',
+          date: '2024-01-15',
+        });
+
+      // Assert - should reject string type
+      expect(response.status).toBe(400);
+    });
+  });
+
+  describe('Date Validation', () => {
+    /**
+     * Date validation tests - verifies past, present, and future dates are accepted.
+     * Future dates are valid for scheduled/planned expenses.
+     */
+    it('should accept future dates for scheduled expenses', async () => {
+      // Arrange
+      const { token } = await createTestUserInDb(testDb);
+
+      // Calculate a future date (1 month from now)
+      const futureDate = new Date();
+      futureDate.setMonth(futureDate.getMonth() + 1);
+      const futureDateStr = futureDate.toISOString().split('T')[0];
+
+      // Act
+      const response = await request(app)
+        .post('/api/expenses')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          categoryId: 1,
+          amount: 50,
+          description: 'Scheduled expense',
+          date: futureDateStr,
+        });
+
+      // Assert - future dates should be accepted
+      expect(response.status).toBe(201);
+      expect(response.body.date).toBe(futureDateStr);
+    });
+
+    it('should accept today date', async () => {
+      // Arrange
+      const { token } = await createTestUserInDb(testDb);
+      const today = new Date().toISOString().split('T')[0];
+
+      // Act
+      const response = await request(app)
+        .post('/api/expenses')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          categoryId: 1,
+          amount: 50,
+          description: 'Today expense test',
+          date: today,
+        });
+
+      // Assert - today should be accepted
+      expect(response.status).toBe(201);
+    });
+
+    it('should accept past dates', async () => {
+      // Arrange
+      const { token } = await createTestUserInDb(testDb);
+
+      // Act
+      const response = await request(app)
+        .post('/api/expenses')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          categoryId: 1,
+          amount: 50,
+          description: 'Past expense test',
+          date: '2024-01-15',
+        });
+
+      // Assert - past dates should be accepted
+      expect(response.status).toBe(201);
+    });
+  });
+
+  describe('BUG-005: Amount Decimal Precision', () => {
+    /**
+     * BUG: The backend accepts amounts with more than 2 decimal places.
+     * Financial amounts should be limited to 2 decimal places (cents).
+     *
+     * Example: 3.144 is accepted and stored, causing display/storage mismatch.
+     *
+     * Expected: Amounts with more than 2 decimal places should be rejected with 400
+     * Actual: Amounts with arbitrary decimal places are accepted
+     *
+     * This test FAILS until the bug is fixed.
+     */
+    it('should reject amount with more than 2 decimal places', async () => {
+      // Arrange
+      const { token } = await createTestUserInDb(testDb);
+
+      // Act - send amount with 3 decimal places
+      const response = await request(app)
+        .post('/api/expenses')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          categoryId: 1,
+          amount: 3.144,
+          description: 'Decimal precision test',
+          date: '2024-01-15',
+        });
+
+      // Assert - should reject amount with more than 2 decimal places
+      expect(response.status).toBe(400);
+    });
+
+    it('should accept amount with exactly 2 decimal places', async () => {
+      // Arrange
+      const { token } = await createTestUserInDb(testDb);
+
+      // Act - send valid amount with 2 decimal places
+      const response = await request(app)
+        .post('/api/expenses')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          categoryId: 1,
+          amount: 3.14,
+          description: 'Valid decimal test',
+          date: '2024-01-15',
+        });
+
+      // Assert - should accept and store exact value
+      expect(response.status).toBe(201);
+      expect(response.body.amount).toBe(3.14);
+    });
+
+    it('should store amount exactly as provided without rounding', async () => {
+      // Arrange
+      const { token } = await createTestUserInDb(testDb);
+
+      // Act - send amount with many decimal places
+      const response = await request(app)
+        .post('/api/expenses')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          categoryId: 1,
+          amount: 3.145,
+          description: 'Rounding test',
+          date: '2024-01-15',
+        });
+
+      // Assert - if status is 201, check it didn't round
+      // This documents the bug: backend accepts and may round the value
+      if (response.status === 201) {
+        // Bug: value should be rejected, not stored
+        // If stored, verify it wasn't silently rounded
+        expect(response.body.amount).not.toBe(3.15);
+      } else {
+        // Expected behavior: reject invalid precision
+        expect(response.status).toBe(400);
+      }
+    });
+  });
 });

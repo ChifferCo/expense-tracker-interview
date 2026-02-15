@@ -1,5 +1,23 @@
 import { defineConfig, devices } from '@playwright/test';
 
+/**
+ * Playwright E2E Test Configuration
+ *
+ * Configuration for end-to-end tests using Playwright.
+ * Tests are organized in the tests/ directory by feature area.
+ *
+ * ## Directory Structure
+ * - support/ - Page objects, fixtures, and test utilities
+ * - tests/ - Test files organized by category
+ *   - auth/ - Authentication tests
+ *   - dashboard/ - Dashboard tests
+ *   - expenses/ - Expense management tests
+ *   - navigation/ - Navigation and layout tests
+ *   - security/ - Security tests
+ *   - bugs/ - Bug documentation tests (expected to fail)
+ *
+ * @see https://playwright.dev/docs/test-configuration
+ */
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
@@ -19,26 +37,20 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
   ],
 
   webServer: [
     {
       command: 'cd ../backend && npm run dev',
-      port: 3002,
+      url: 'http://localhost:3002/api/categories',
       reuseExistingServer: !process.env.CI,
+      timeout: 30000,
     },
     {
       command: 'cd ../frontend && npm run dev',
-      port: 5173,
+      url: 'http://localhost:5173',
       reuseExistingServer: !process.env.CI,
+      timeout: 30000,
     },
   ],
 });

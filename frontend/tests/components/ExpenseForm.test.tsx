@@ -310,4 +310,224 @@ describe('ExpenseForm Component', () => {
       );
     });
   });
+
+  describe('BUG-001: Amount Field Accepts "e" Character', () => {
+    /**
+     * BUG: The amount input field accepts the "e" character because HTML number
+     * inputs allow scientific notation (e.g., 1e5 = 100000). This can lead to
+     * confusion or invalid data entry.
+     *
+     * Expected: Amount field should only accept numeric digits and decimal point
+     * Actual: Amount field accepts "e" character for scientific notation
+     *
+     * These tests FAIL until the bug is fixed.
+     */
+    it('should reject "e" character in amount field', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(
+        <ExpenseForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
+        { wrapper: createWrapper() }
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Amount')).toBeInTheDocument();
+      });
+
+      // Act - type scientific notation
+      await user.clear(screen.getByLabelText('Amount'));
+      await user.type(screen.getByLabelText('Amount'), '1e2');
+
+      // Assert - "e" should NOT be accepted in amount field
+      const amountInput = screen.getByLabelText('Amount') as HTMLInputElement;
+      expect(amountInput.value).not.toContain('e');
+    });
+
+    it('should not submit with scientific notation amount', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(
+        <ExpenseForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
+        { wrapper: createWrapper() }
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Amount')).toBeInTheDocument();
+      });
+
+      // Act - try to submit with scientific notation
+      await user.clear(screen.getByLabelText('Amount'));
+      await user.type(screen.getByLabelText('Amount'), '1e2');
+      await user.type(screen.getByLabelText('Description'), 'Scientific notation test');
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      // Assert - should show validation error, not submit
+      expect(screen.getByText('Invalid amount')).toBeInTheDocument();
+      expect(mockOnSubmit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Date Selection', () => {
+    /**
+     * Date selection tests - verifies past, present, and future dates are accepted.
+     * Future dates are valid for scheduled/planned expenses.
+     */
+    it('should allow future dates for scheduled expenses', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(
+        <ExpenseForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
+        { wrapper: createWrapper() }
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Date')).toBeInTheDocument();
+      });
+
+      // Calculate a future date (1 month from now)
+      const futureDate = new Date();
+      futureDate.setMonth(futureDate.getMonth() + 1);
+      const futureDateStr = futureDate.toISOString().split('T')[0];
+
+      // Act - enter future date
+      await user.type(screen.getByLabelText('Amount'), '50');
+      await user.type(screen.getByLabelText('Description'), 'Scheduled expense');
+      await user.clear(screen.getByLabelText('Date'));
+      await user.type(screen.getByLabelText('Date'), futureDateStr);
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      // Assert - future dates should be accepted
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ date: futureDateStr })
+      );
+    });
+
+    it('should allow today date', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(
+        <ExpenseForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
+        { wrapper: createWrapper() }
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Date')).toBeInTheDocument();
+      });
+
+      const today = new Date().toISOString().split('T')[0];
+
+      // Act - enter today's date
+      await user.type(screen.getByLabelText('Amount'), '50');
+      await user.type(screen.getByLabelText('Description'), 'Today expense test');
+      await user.clear(screen.getByLabelText('Date'));
+      await user.type(screen.getByLabelText('Date'), today);
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      // Assert - today should be accepted
+      expect(mockOnSubmit).toHaveBeenCalled();
+    });
+
+    it('should allow past dates', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(
+        <ExpenseForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
+        { wrapper: createWrapper() }
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Date')).toBeInTheDocument();
+      });
+
+      // Act - enter past date
+      await user.type(screen.getByLabelText('Amount'), '50');
+      await user.type(screen.getByLabelText('Description'), 'Past expense test');
+      await user.clear(screen.getByLabelText('Date'));
+      await user.type(screen.getByLabelText('Date'), '2024-01-15');
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      // Assert - past dates should be accepted
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ date: '2024-01-15' })
+      );
+    });
+  });
+
+  describe('BUG-005: Amount Decimal Precision', () => {
+    /**
+     * BUG: The amount field accepts more than 2 decimal places, but displays
+     * rounded values while storing the full precision. This causes a mismatch
+     * between what users see and what's stored in the database.
+     *
+     * Example: User enters 3.145, sees 3.15 displayed, but 3.145 is stored.
+     *
+     * Expected: Amount should only allow 2 decimal places and save exactly as entered
+     * Actual: Accepts arbitrary decimal places, displays rounded, stores full value
+     *
+     * This test FAILS until the bug is fixed.
+     */
+    it('should reject amount with more than 2 decimal places', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(
+        <ExpenseForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
+        { wrapper: createWrapper() }
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Amount')).toBeInTheDocument();
+      });
+
+      // Act - enter amount with 3 decimal places
+      await user.clear(screen.getByLabelText('Amount'));
+      await user.type(screen.getByLabelText('Amount'), '3.144');
+      await user.type(screen.getByLabelText('Description'), 'Decimal precision test');
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      // Assert - should show validation error for invalid decimal precision
+      expect(screen.getByText(/2 decimal places|invalid amount/i)).toBeInTheDocument();
+      expect(mockOnSubmit).not.toHaveBeenCalled();
+    });
+
+    it('should save amount exactly as entered with 2 decimal places', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(
+        <ExpenseForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
+        { wrapper: createWrapper() }
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Amount')).toBeInTheDocument();
+      });
+
+      // Act - enter valid amount with 2 decimal places
+      await user.clear(screen.getByLabelText('Amount'));
+      await user.type(screen.getByLabelText('Amount'), '3.14');
+      await user.type(screen.getByLabelText('Description'), 'Valid decimal test');
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      // Assert - should submit with exact value (not rounded)
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ amount: 3.14 })
+      );
+    });
+
+    it('should not round amount values on submission', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(
+        <ExpenseForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
+        { wrapper: createWrapper() }
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Amount')).toBeInTheDocument();
+      });
+
+      // Act - enter amount that would round up (3.145 -> 3.15)
+      await user.clear(screen.getByLabelText('Amount'));
+      await user.type(screen.getByLabelText('Amount'), '3.145');
+      await user.type(screen.getByLabelText('Description'), 'Rounding test');
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      // Assert - should NOT submit with rounded value
+      // If this passes with 3.15, it means rounding is occurring
+      expect(mockOnSubmit).not.toHaveBeenCalledWith(
+        expect.objectContaining({ amount: 3.15 })
+      );
+    });
+  });
 });

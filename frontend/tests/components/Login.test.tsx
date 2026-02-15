@@ -243,4 +243,47 @@ describe('Login Component', () => {
       expect(passwordInput).toHaveAttribute('type', 'password');
     });
   });
+
+  describe('SEC-002: Demo Credentials Exposure', () => {
+    /**
+     * SECURITY CONCERN: Demo credentials are displayed on the login page.
+     * While this is intentional for demo purposes, it's worth documenting
+     * that credentials should never be exposed in production.
+     */
+    it('should display demo credentials on login page (intentional for demo)', () => {
+      // Arrange & Act
+      render(<Login {...defaultProps} />);
+
+      // Assert - demo email is visible (this is intentional for the demo)
+      expect(screen.getByText(/demo@example.com/)).toBeInTheDocument();
+
+      // Document: In production, credentials should NEVER be displayed
+      // This test passes but serves as documentation of the security consideration
+    });
+
+    it('should NOT expose password in login page (security concern)', () => {
+      // Arrange & Act
+      const { container } = render(<Login {...defaultProps} />);
+
+      // Assert - password should NOT be visible in rendered HTML
+      // NOTE: This is a SECURITY CONCERN - passwords should never be displayed
+      const htmlContent = container.innerHTML;
+
+      // This test FAILS until the security concern is addressed
+      // In production, credentials should NEVER be displayed
+      expect(htmlContent).not.toContain('password123');
+    });
+
+    it('should hide demo credentials in register mode', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(<Login {...defaultProps} />);
+
+      // Act - switch to register mode
+      await user.click(screen.getByText('Register'));
+
+      // Assert - demo credentials should not be visible in register mode
+      expect(screen.queryByText(/demo@example.com/)).not.toBeInTheDocument();
+    });
+  });
 });
