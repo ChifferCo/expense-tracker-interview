@@ -14,11 +14,12 @@
  * @see backend/src/db/knexfile.ts - DATABASE_PATH env var support
  */
 
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
+import { execSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
 
-const TEST_DB_PATH = path.join(__dirname, '../backend/test.db');
+const TEST_DB_PATH = path.join(process.cwd(), '../backend/test.db');
+const BACKEND_DIR = path.join(process.cwd(), '../backend');
 
 async function globalSetup() {
   console.log('\n=== E2E Test Database Setup ===\n');
@@ -32,7 +33,7 @@ async function globalSetup() {
   // Step 2: Run migrations to create fresh schema
   console.log('Running database migrations...');
   execSync('npm run db:migrate', {
-    cwd: path.join(__dirname, '../backend'),
+    cwd: BACKEND_DIR,
     env: { ...process.env, DATABASE_PATH: 'test.db' },
     stdio: 'inherit',
   });
@@ -40,7 +41,7 @@ async function globalSetup() {
   // Step 3: Seed initial data (demo user, categories)
   console.log('Seeding test data...');
   execSync('npm run db:seed', {
-    cwd: path.join(__dirname, '../backend'),
+    cwd: BACKEND_DIR,
     env: { ...process.env, DATABASE_PATH: 'test.db' },
     stdio: 'inherit',
   });

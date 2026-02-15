@@ -9,7 +9,8 @@
     "noEmit": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["node"]
   },
-  "include": ["tests/**/*.ts", "support/**/*.ts", "playwright.config.ts"]
+  "include": ["tests/**/*.ts", "support/**/*.ts", "playwright.config.ts", "global-setup.ts"]
 }
