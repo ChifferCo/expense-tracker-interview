@@ -11,7 +11,8 @@
     "db:rollback": "knex migrate:rollback --knexfile src/db/knexfile.ts",
     "db:seed": "knex seed:run --knexfile src/db/knexfile.ts",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "test:integration": "NODE_ENV=test vitest run tests/integration --testTimeout=30000"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -32,6 +33,9 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20.11.5",
     "@types/pino": "^7.0.4",
+    "@types/supertest": "^6.0.3",
+    "@vitest/coverage-v8": "^1.6.1",
+    "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
