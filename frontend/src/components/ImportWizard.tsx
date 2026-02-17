@@ -224,6 +224,7 @@ export function ImportWizard({ onComplete, onCancel }: ImportWizardProps) {
           <button
             onClick={onCancel}
             className="text-sm text-gray-500 hover:text-gray-700"
+            data-testid="import-wizard-cancel"
           >
             Cancel Import
           </button>
@@ -241,9 +242,9 @@ interface UploadStepProps {
 
 function UploadStep({ onFileSelect, isLoading }: UploadStepProps) {
   return (
-    <div className="text-center py-8">
+    <div className="text-center py-8" data-testid="import-wizard-upload-step">
       <Upload className="mx-auto h-12 w-12 text-gray-400" />
-      <h3 className="mt-4 text-lg font-medium text-gray-900">Upload CSV File</h3>
+      <h3 className="mt-4 text-lg font-medium text-gray-900" data-testid="import-wizard-upload-heading">Upload CSV File</h3>
       <p className="mt-2 text-sm text-gray-500">
         Select a CSV file containing your expenses to import
       </p>
@@ -263,6 +264,7 @@ function UploadStep({ onFileSelect, isLoading }: UploadStepProps) {
             onChange={onFileSelect}
             disabled={isLoading}
             className="hidden"
+            data-testid="import-wizard-file-input"
           />
         </label>
       </div>
@@ -299,7 +301,7 @@ function MappingStep({
   ];
 
   return (
-    <div>
+    <div data-testid="import-wizard-mapping-step">
       <h3 className="text-lg font-medium text-gray-900 mb-4">Map CSV Columns</h3>
       <p className="text-sm text-gray-500 mb-6">
         Match your CSV columns to the expense fields. We've suggested mappings based on your

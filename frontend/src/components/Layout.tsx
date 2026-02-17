@@ -22,13 +22,14 @@ export function Layout({ children, onLogout }: LayoutProps) {
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <span className="text-xl font-bold text-indigo-600">ExpenseTracker</span>
+                <span className="text-xl font-bold text-indigo-600" data-testid="app-title">ExpenseTracker</span>
               </div>
               <div className="hidden sm:ml-8 sm:flex sm:space-x-4">
                 {navItems.map(({ path, label, icon: Icon }) => (
                   <Link
                     key={path}
                     to={path}
+                    data-testid={`nav-link-${label.toLowerCase()}`}
                     className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                       location.pathname === path
                         ? 'text-indigo-600 bg-indigo-50'
@@ -45,6 +46,7 @@ export function Layout({ children, onLogout }: LayoutProps) {
               <button
                 onClick={onLogout}
                 className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-md hover:bg-gray-50"
+                data-testid="nav-logout"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout

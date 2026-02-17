@@ -29,10 +29,10 @@ export function Dashboard({ onEditExpense }: DashboardProps) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-gray-900" data-testid="dashboard-heading">Dashboard</h1>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3" data-testid="dashboard-stats">
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="p-5">
             <div className="flex items-center">
@@ -104,7 +104,7 @@ export function Dashboard({ onEditExpense }: DashboardProps) {
 
       {/* Recent Expenses */}
       <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Recent Expenses</h2>
+        <h2 className="text-lg font-medium text-gray-900 mb-4" data-testid="dashboard-recent-expenses-heading">Recent Expenses</h2>
         {expensesLoading ? (
           <div className="text-center py-8 text-gray-500">Loading...</div>
         ) : (

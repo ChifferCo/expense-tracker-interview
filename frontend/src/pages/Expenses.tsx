@@ -114,10 +114,11 @@ export function Expenses() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Expenses</h1>
+        <h1 className="text-2xl font-bold text-gray-900" data-testid="expenses-heading">Expenses</h1>
         <button
           onClick={handleCreate}
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+          data-testid="expenses-add-button"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Expense
@@ -136,11 +137,12 @@ export function Expenses() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            data-testid="expenses-search"
           />
         </div>
 
         {/* Date filter */}
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200" data-testid="expenses-date-range">
           <div className="flex items-center gap-2 mb-3">
             <Calendar className="h-4 w-4 text-gray-500" />
             <span className="text-sm font-medium text-gray-700">Date Range</span>
@@ -163,6 +165,7 @@ export function Expenses() {
                     ? 'bg-indigo-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
+                data-testid={`expenses-filter-${key}`}
               >
                 {label}
               </button>
@@ -173,23 +176,25 @@ export function Expenses() {
           {datePreset === 'custom' && (
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
-                <label htmlFor="startDate" className="text-sm text-gray-600">From:</label>
+                <label htmlFor="startDate" className="text-sm text-gray-600" data-testid="expenses-custom-start-label">From:</label>
                 <input
                   type="date"
                   id="startDate"
                   value={customStartDate}
                   onChange={(e) => setCustomStartDate(e.target.value)}
                   className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  data-testid="expenses-custom-start"
                 />
               </div>
               <div className="flex items-center gap-2">
-                <label htmlFor="endDate" className="text-sm text-gray-600">To:</label>
+                <label htmlFor="endDate" className="text-sm text-gray-600" data-testid="expenses-custom-end-label">To:</label>
                 <input
                   type="date"
                   id="endDate"
                   value={customEndDate}
                   onChange={(e) => setCustomEndDate(e.target.value)}
                   className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  data-testid="expenses-custom-end"
                 />
               </div>
               {(customStartDate || customEndDate) && (
@@ -226,6 +231,7 @@ export function Expenses() {
           setEditingExpense(null);
         }}
         title={editingExpense ? 'Edit Expense' : 'Add Expense'}
+        dataTestId={editingExpense ? 'modal-edit-expense' : 'modal-add-expense'}
       >
         <ExpenseForm
           onSubmit={handleSubmit}
@@ -243,15 +249,17 @@ export function Expenses() {
         isOpen={deleteConfirmId !== null}
         onClose={() => setDeleteConfirmId(null)}
         title="Delete Expense"
+        dataTestId="modal-delete-expense"
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500" data-testid="modal-delete-expense-message">
             Are you sure you want to delete this expense? This action cannot be undone.
           </p>
           <div className="flex justify-end space-x-3">
             <button
               onClick={() => setDeleteConfirmId(null)}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              data-testid="modal-delete-expense-cancel"
             >
               Cancel
             </button>
@@ -259,6 +267,7 @@ export function Expenses() {
               onClick={confirmDelete}
               disabled={deleteExpense.isPending}
               className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 disabled:opacity-50"
+              data-testid="modal-delete-expense-confirm"
             >
               {deleteExpense.isPending ? 'Deleting...' : 'Delete'}
             </button>

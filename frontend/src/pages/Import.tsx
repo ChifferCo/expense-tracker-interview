@@ -29,14 +29,14 @@ export function Import() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Import Expenses</h1>
+        <h1 className="text-2xl font-bold text-gray-900" data-testid="import-heading">Import Expenses</h1>
       </div>
 
       {/* Import Card */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="text-center py-8">
           <FileSpreadsheet className="mx-auto h-16 w-16 text-indigo-400" />
-          <h2 className="mt-4 text-xl font-medium text-gray-900">
+          <h2 className="mt-4 text-xl font-medium text-gray-900" data-testid="import-bulk-heading">
             Bulk Import from CSV
           </h2>
           <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
@@ -47,6 +47,7 @@ export function Import() {
             <button
               onClick={() => setShowWizard(true)}
               className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+              data-testid="import-start-button"
             >
               <Upload className="w-5 h-5 mr-2" />
               Start Import
@@ -89,7 +90,7 @@ export function Import() {
       {/* Import History */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-medium text-gray-900 flex items-center">
+          <h2 className="text-lg font-medium text-gray-900 flex items-center" data-testid="import-history-heading">
             <History className="w-5 h-5 mr-2 text-gray-400" />
             Import History
           </h2>

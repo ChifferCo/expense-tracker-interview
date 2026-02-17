@@ -55,7 +55,7 @@ export function ExpenseForm({ onSubmit, onCancel, initialData, isLoading }: Expe
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" data-testid="expense-form">
       <div>
         <label htmlFor="category" className="block text-sm font-medium text-gray-700">
           Category
@@ -65,6 +65,7 @@ export function ExpenseForm({ onSubmit, onCancel, initialData, isLoading }: Expe
           value={formData.categoryId}
           onChange={(e) => setFormData({ ...formData, categoryId: Number(e.target.value) })}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
+          data-testid="expense-form-category"
         >
           {categories?.map((category) => (
             <option key={category.id} value={category.id}>
@@ -88,8 +89,9 @@ export function ExpenseForm({ onSubmit, onCancel, initialData, isLoading }: Expe
             errors.amount ? 'border-red-500' : 'border-gray-300'
           } focus:border-indigo-500 focus:ring-indigo-500`}
           placeholder="0.00"
+          data-testid="expense-form-amount"
         />
-        {errors.amount && <p className="mt-1 text-sm text-red-600">{errors.amount}</p>}
+        {errors.amount && <p className="mt-1 text-sm text-red-600" data-testid="expense-form-error-amount">{errors.amount}</p>}
       </div>
 
       <div>
@@ -105,8 +107,9 @@ export function ExpenseForm({ onSubmit, onCancel, initialData, isLoading }: Expe
             errors.description ? 'border-red-500' : 'border-gray-300'
           } focus:border-indigo-500 focus:ring-indigo-500`}
           placeholder="What was this expense for?"
+          data-testid="expense-form-description"
         />
-        {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
+        {errors.description && <p className="mt-1 text-sm text-red-600" data-testid="expense-form-error-description">{errors.description}</p>}
       </div>
 
       <div>
@@ -121,8 +124,9 @@ export function ExpenseForm({ onSubmit, onCancel, initialData, isLoading }: Expe
           className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm border p-2 ${
             errors.date ? 'border-red-500' : 'border-gray-300'
           } focus:border-indigo-500 focus:ring-indigo-500`}
+          data-testid="expense-form-date"
         />
-        {errors.date && <p className="mt-1 text-sm text-red-600">{errors.date}</p>}
+        {errors.date && <p className="mt-1 text-sm text-red-600" data-testid="expense-form-error-date">{errors.date}</p>}
       </div>
 
       <div className="flex justify-end space-x-3 pt-4">
@@ -130,6 +134,7 @@ export function ExpenseForm({ onSubmit, onCancel, initialData, isLoading }: Expe
           type="button"
           onClick={onCancel}
           className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          data-testid="expense-form-cancel"
         >
           Cancel
         </button>
@@ -137,6 +142,7 @@ export function ExpenseForm({ onSubmit, onCancel, initialData, isLoading }: Expe
           type="submit"
           disabled={isLoading}
           className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 disabled:opacity-50"
+          data-testid={initialData ? 'expense-form-update' : 'expense-form-create'}
         >
           {isLoading ? 'Saving...' : initialData ? 'Update' : 'Create'}
         </button>

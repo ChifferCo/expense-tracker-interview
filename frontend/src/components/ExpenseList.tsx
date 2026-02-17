@@ -11,17 +11,23 @@ interface ExpenseListProps {
 export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
   if (expenses.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="text-center py-12 text-gray-500" data-testid="expense-list-empty">
         No expenses found. Add your first expense!
       </div>
     );
   }
 
   return (
-    <div className="bg-white shadow rounded-lg overflow-hidden">
+    <div className="bg-white shadow rounded-lg overflow-hidden" data-testid="expense-list">
       <ul className="divide-y divide-gray-200">
         {expenses.map((expense) => (
-          <li key={expense.id} className="p-4 hover:bg-gray-50">
+          <li
+            key={expense.id}
+            className="p-4 hover:bg-gray-50"
+            data-testid="expense-row"
+            data-expense-description={expense.description}
+            data-expense-id={expense.id}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="flex-shrink-0">
@@ -43,6 +49,7 @@ export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
                     onClick={() => onEdit(expense)}
                     className="p-1 text-gray-400 hover:text-indigo-600"
                     title="Edit"
+                    data-testid="expense-edit"
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
@@ -50,6 +57,7 @@ export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
                     onClick={() => onDelete(expense.id)}
                     className="p-1 text-gray-400 hover:text-red-600"
                     title="Delete"
+                    data-testid="expense-delete"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
