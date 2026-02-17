@@ -126,3 +126,41 @@ export interface ImportResult {
   skippedCount: number;
   history: ImportHistory;
 }
+
+// Receipt analysis types
+export interface ExtractedReceiptData {
+  merchant: string;
+  amount: number;
+  date: string;
+  category: string;
+  description: string;
+}
+
+export interface ReceiptAnalysisResult extends ExtractedReceiptData {
+  categoryId: number;
+  categoryName: string;
+}
+
+// Email scanning types
+export interface EmailData {
+  id: string;
+  from: string;
+  subject: string;
+  date: string;
+  body: string;
+}
+
+export interface DraftExpense {
+  emailId: string;
+  merchant: string;
+  amount: number;
+  date: string;
+  description: string;
+  categoryId: number;
+  categoryName: string;
+}
+
+export interface ScanEmailsResult {
+  expenses: DraftExpense[];
+  message?: string;
+}
