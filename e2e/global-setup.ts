@@ -17,9 +17,9 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
-// Get the directory where this script lives (e2e/) using __dirname equivalent
-const SCRIPT_DIR = path.dirname(__filename);
-const PROJECT_ROOT = path.resolve(SCRIPT_DIR, '..');
+// Use process.cwd() which is the project root when running via npm scripts
+// This is more reliable than __dirname or import.meta.url across different runtimes
+const PROJECT_ROOT = process.cwd();
 const BACKEND_DIR = path.join(PROJECT_ROOT, 'backend');
 const TEST_DB_PATH = path.join(BACKEND_DIR, 'test.db');
 

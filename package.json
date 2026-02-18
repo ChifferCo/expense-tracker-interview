@@ -24,7 +24,7 @@
     "test:coverage:html": "npm run test:coverage:backend:html && npm run test:coverage:frontend:html",
     "test:coverage:backend:html": "cd backend && npx vitest run --coverage || true && npx c8 report --reporter=html --reports-dir=coverage --temp-directory=coverage/.tmp",
     "test:coverage:frontend:html": "cd frontend && npx vitest run --coverage || true && npx c8 report --reporter=html --reports-dir=coverage --temp-directory=coverage/.tmp",
-    "coverage:open": "start backend/coverage/index.html & start frontend/coverage/index.html"
+    "coverage:open": "open-cli backend/coverage/index.html frontend/coverage/index.html"
   },
   "repository": {
     "type": "git",
@@ -41,7 +41,8 @@
     "@playwright/test": "^1.58.2",
     "@types/node": "^25.2.3",
     "cross-env": "^7.0.3",
-    "husky": "^9.1.7"
+    "husky": "^9.1.7",
+    "open-cli": "^8.0.0"
   },
   "main": "index.js",
   "dependencies": {
