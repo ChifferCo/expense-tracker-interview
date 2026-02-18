@@ -76,6 +76,47 @@ export const TestDataFactory = {
   searchTerm(prefix = 'search'): string {
     return `${prefix}-${this.uniqueId()}`;
   },
+
+  /**
+   * Generates a date in the current month.
+   * @returns Current month date string in YYYY-MM-DD format
+   */
+  currentMonthDate(): string {
+    const now = new Date();
+    // Use the 15th of the current month to avoid boundary issues
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-15`;
+  },
+
+  /**
+   * Generates a date in the previous month.
+   * @returns Previous month date string in YYYY-MM-DD format
+   */
+  previousMonthDate(): string {
+    const now = new Date();
+    const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 15);
+    return prevMonth.toISOString().split('T')[0];
+  },
+
+  /**
+   * Generates a date in a future month (not current month).
+   * @returns Next month date string in YYYY-MM-DD format
+   */
+  nextMonthDate(): string {
+    const now = new Date();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 15);
+    return nextMonth.toISOString().split('T')[0];
+  },
+
+  /**
+   * Generates a date in a specific relative month.
+   * @param monthsOffset - Positive for future, negative for past, 0 for current
+   * @returns Date string in YYYY-MM-DD format
+   */
+  relativeMonthDate(monthsOffset: number): string {
+    const now = new Date();
+    const targetMonth = new Date(now.getFullYear(), now.getMonth() + monthsOffset, 15);
+    return targetMonth.toISOString().split('T')[0];
+  },
 };
 
 /** Expense data structure */

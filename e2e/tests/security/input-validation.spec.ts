@@ -28,7 +28,6 @@ test.describe('SEC-003: Input Validation', () => {
     await expenseForm.submitCreate();
 
     // Assert - should handle gracefully without crashing
-    await authenticatedPage.waitForTimeout(2000);
     await expect(expensesPage.heading).toBeVisible();
   });
 

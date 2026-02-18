@@ -13,12 +13,35 @@
  * @see backend/src/db/knexfile.ts - DATABASE_PATH env var support
  */
 
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const TEST_DB_PATH = path.join(process.cwd(), '../backend/test.db');
-const BACKEND_DIR = path.join(process.cwd(), '../backend');
+// Get the directory where this script lives (e2e/) using __dirname equivalent
+const SCRIPT_DIR = path.dirname(__filename);
+const PROJECT_ROOT = path.resolve(SCRIPT_DIR, '..');
+const BACKEND_DIR = path.join(PROJECT_ROOT, 'backend');
+const TEST_DB_PATH = path.join(BACKEND_DIR, 'test.db');
+
+/**
+ * Run npm script in a cross-platform way
+ * Uses spawnSync with shell: true to ensure proper Windows compatibility
+ */
+function runNpmScript(script: string, cwd: string, env: Record<string, string> = {}): void {
+  const result = spawnSync('npm', ['run', script], {
+    cwd,
+    env: { ...process.env, ...env },
+    stdio: 'inherit',
+    shell: true,
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+  if (result.status !== 0) {
+    throw new Error(`npm run ${script} failed with exit code ${result.status}`);
+  }
+}
 
 async function globalSetup() {
   console.log('\n=== E2E Test Database Setup ===\n');
@@ -34,10 +57,23 @@ async function globalSetup() {
     } catch (err: unknown) {
       const error = err as NodeJS.ErrnoException;
       if (error.code === 'EBUSY') {
-        // Database is in use by running server - skip reset
-        console.log('  Database in use by server - skipping reset.');
-        console.log('  (Run tests with a fresh server for full isolation)\n');
-        return;
+        // Database is in use by running server - reset via rollback instead
+        console.log('  Database in use - resetting via rollback...');
+        try {
+          // Rollback all migrations (drops tables)
+          runNpmScript('db:rollback', BACKEND_DIR, { DATABASE_PATH: 'test.db' });
+          // Run migrations again
+          console.log('  Running migrations...');
+          runNpmScript('db:migrate', BACKEND_DIR, { DATABASE_PATH: 'test.db' });
+          // Seed fresh data
+          console.log('  Seeding test data...');
+          runNpmScript('db:seed', BACKEND_DIR, { DATABASE_PATH: 'test.db' });
+          console.log('\nTest database reset complete.\n');
+          return;
+        } catch (resetErr) {
+          console.error('  Failed to reset database via rollback:', resetErr);
+          throw resetErr;
+        }
       }
       throw err;
     }
@@ -45,19 +81,11 @@ async function globalSetup() {
 
   // Run migrations to create fresh schema
   console.log('Running database migrations...');
-  execSync('npm run db:migrate', {
-    cwd: BACKEND_DIR,
-    env: { ...process.env, DATABASE_PATH: 'test.db' },
-    stdio: 'inherit',
-  });
+  runNpmScript('db:migrate', BACKEND_DIR, { DATABASE_PATH: 'test.db' });
 
   // Seed initial data (demo user, categories)
   console.log('Seeding test data...');
-  execSync('npm run db:seed', {
-    cwd: BACKEND_DIR,
-    env: { ...process.env, DATABASE_PATH: 'test.db' },
-    stdio: 'inherit',
-  });
+  runNpmScript('db:seed', BACKEND_DIR, { DATABASE_PATH: 'test.db' });
 
   console.log('\nTest database ready: backend/test.db\n');
 }

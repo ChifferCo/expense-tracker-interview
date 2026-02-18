@@ -63,11 +63,12 @@ test.describe('Stats Display', () => {
 
 test.describe('Recent Expenses', () => {
   test('should display expense list if expenses exist', async ({ authenticatedPage }) => {
-    // Arrange - wait for loading to complete
-    await authenticatedPage.waitForTimeout(1000);
+    // Wait for either expense list or empty state to appear (loading complete)
+    const contentLocator = authenticatedPage.locator('ul.divide-y, .text-center.text-gray-500');
+    await expect(contentLocator.first()).toBeVisible();
 
-    // Assert - check for content (either table or empty state)
-    const hasContent = await authenticatedPage.locator('table, [class*="text-gray-500"]').count();
-    expect(hasContent).toBeGreaterThan(0);
+    // Assert - content is present
+    const count = await contentLocator.count();
+    expect(count).toBeGreaterThan(0);
   });
 });

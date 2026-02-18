@@ -147,4 +147,70 @@ export class DashboardPage {
     const dollarAmount = this.page.locator('text=/\\$[0-9]+/');
     await expect(dollarAmount.first()).toBeVisible();
   }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Value Extraction (using stable data-testid selectors)
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Get the monthly spending value from the dashboard.
+   * @returns Monthly spending as a number (e.g., 1234.56)
+   */
+  async getMonthlySpendingValue(): Promise<number> {
+    const valueLocator = this.page.getByTestId('monthly-spending-value');
+
+    // Wait for the value to load (not showing "...")
+    await expect(valueLocator).not.toHaveText('...', { timeout: 10000 });
+
+    const valueText = await valueLocator.textContent();
+
+    // Extract numeric value from "$1,234.56" format
+    const match = valueText?.match(/\$([0-9,]+\.?\d*)/);
+    if (!match) return 0;
+
+    return parseFloat(match[1].replace(/,/g, ''));
+  }
+
+  /**
+   * Get the total expenses count from the dashboard.
+   * @returns Total expenses count as a number
+   */
+  async getTotalExpensesCount(): Promise<number> {
+    const valueLocator = this.page.getByTestId('total-expenses-value');
+
+    // Wait for loading to complete
+    await expect(valueLocator).not.toHaveText('...', { timeout: 10000 });
+
+    const valueText = await valueLocator.textContent();
+
+    return parseInt(valueText || '0', 10);
+  }
+
+  /**
+   * Get the average per expense value from the dashboard.
+   * @returns Average per expense as a number
+   */
+  async getAvgPerExpenseValue(): Promise<number> {
+    const valueLocator = this.page.getByTestId('avg-expense-value');
+
+    // Wait for loading to complete
+    await expect(valueLocator).not.toHaveText('...', { timeout: 10000 });
+
+    const valueText = await valueLocator.textContent();
+
+    const match = valueText?.match(/\$([0-9,]+\.?\d*)/);
+    if (!match) return 0;
+
+    return parseFloat(match[1].replace(/,/g, ''));
+  }
+
+  /**
+   * Wait for dashboard data to fully load (no loading indicators).
+   */
+  async waitForDataLoaded() {
+    await expect(this.page.getByTestId('monthly-spending-value')).not.toHaveText('...', { timeout: 10000 });
+    await expect(this.page.getByTestId('total-expenses-value')).not.toHaveText('...', { timeout: 10000 });
+    // Note: avg-expense-value can legitimately be "$0.00" for users with no expenses
+    await expect(this.page.getByTestId('avg-expense-value')).toBeVisible({ timeout: 10000 });
+  }
 }

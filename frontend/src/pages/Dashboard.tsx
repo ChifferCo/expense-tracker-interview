@@ -33,7 +33,7 @@ export function Dashboard({ onEditExpense }: DashboardProps) {
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="bg-white overflow-hidden shadow rounded-lg" data-testid="monthly-spending-card">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -44,7 +44,7 @@ export function Dashboard({ onEditExpense }: DashboardProps) {
                   <dt className="text-sm font-medium text-gray-500 truncate">
                     {monthName} Spending
                   </dt>
-                  <dd className="text-lg font-semibold text-gray-900">
+                  <dd className="text-lg font-semibold text-gray-900" data-testid="monthly-spending-value">
                     {totalLoading ? '...' : `$${monthlyTotal?.total.toFixed(2) || '0.00'}`}
                   </dd>
                   {!totalLoading && !lastMonthLoading && previousTotal > 0 && (
@@ -63,7 +63,7 @@ export function Dashboard({ onEditExpense }: DashboardProps) {
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="bg-white overflow-hidden shadow rounded-lg" data-testid="total-expenses-card">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -72,7 +72,7 @@ export function Dashboard({ onEditExpense }: DashboardProps) {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Total Expenses</dt>
-                  <dd className="text-lg font-semibold text-gray-900">
+                  <dd className="text-lg font-semibold text-gray-900" data-testid="total-expenses-value">
                     {expensesLoading ? '...' : totalExpenses}
                   </dd>
                 </dl>
@@ -81,7 +81,7 @@ export function Dashboard({ onEditExpense }: DashboardProps) {
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="bg-white overflow-hidden shadow rounded-lg" data-testid="avg-expense-card">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -90,7 +90,7 @@ export function Dashboard({ onEditExpense }: DashboardProps) {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Avg per Expense</dt>
-                  <dd className="text-lg font-semibold text-gray-900">
+                  <dd className="text-lg font-semibold text-gray-900" data-testid="avg-expense-value">
                     {expensesLoading || !expenses?.length
                       ? '$0.00'
                       : `$${(expenses.reduce((sum, e) => sum + e.amount, 0) / expenses.length).toFixed(2)}`}
