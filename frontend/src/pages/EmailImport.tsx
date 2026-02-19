@@ -37,31 +37,65 @@ export function EmailImport() {
   const createExpenseMutation = useCreateExpense();
   const { data: categories } = useCategories();
 
-  // Parse CSV line handling quoted fields
-  const parseCsvLine = (line: string): string[] => {
-    const values: string[] = [];
-    let current = '';
+  // Parse entire CSV content handling multiline quoted fields
+  const parseCsv = (content: string): string[][] => {
+    const rows: string[][] = [];
+    let currentRow: string[] = [];
+    let currentField = '';
     let inQuotes = false;
 
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
+    for (let i = 0; i < content.length; i++) {
+      const char = content[i];
 
-      if (char === '"') {
-        if (inQuotes && line[i + 1] === '"') {
-          current += '"';
-          i++;
+      if (inQuotes) {
+        if (char === '"') {
+          // Check for escaped quote (double quote)
+          if (content[i + 1] === '"') {
+            currentField += '"';
+            i++; // Skip the next quote
+          } else {
+            // End of quoted field
+            inQuotes = false;
+          }
         } else {
-          inQuotes = !inQuotes;
+          // Include any character (including newlines) inside quotes
+          currentField += char;
         }
-      } else if (char === ',' && !inQuotes) {
-        values.push(current.trim());
-        current = '';
       } else {
-        current += char;
+        if (char === '"') {
+          // Start of quoted field
+          inQuotes = true;
+        } else if (char === ',') {
+          // End of field
+          currentRow.push(currentField.trim());
+          currentField = '';
+        } else if (char === '\n' || char === '\r') {
+          // Handle CRLF
+          if (char === '\r' && content[i + 1] === '\n') {
+            i++; // Skip the \n in CRLF
+          }
+          // End of row
+          currentRow.push(currentField.trim());
+          if (currentRow.some((field) => field !== '')) {
+            rows.push(currentRow);
+          }
+          currentRow = [];
+          currentField = '';
+        } else {
+          currentField += char;
+        }
       }
     }
-    values.push(current.trim());
-    return values;
+
+    // Don't forget the last field/row
+    if (currentField || currentRow.length > 0) {
+      currentRow.push(currentField.trim());
+      if (currentRow.some((field) => field !== '')) {
+        rows.push(currentRow);
+      }
+    }
+
+    return rows;
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,16 +109,16 @@ export function EmailImport() {
     reader.onload = (event) => {
       try {
         const content = event.target?.result as string;
-        const lines = content.split('\n').filter((line) => line.trim());
+        const rows = parseCsv(content);
 
-        if (lines.length < 2) {
+        if (rows.length < 2) {
           setParseError('CSV file must have a header row and at least one data row');
           setEmails([]);
           return;
         }
 
-        // Parse header row (comma-delimited)
-        const headers = parseCsvLine(lines[0]).map((h) => h.toLowerCase());
+        // Parse header row
+        const headers = rows[0].map((h) => h.toLowerCase());
 
         // Expected headers: id, from, to, subject, date, body, threadId
         const requiredHeaders = ['id', 'from', 'subject', 'date', 'body'];
@@ -104,10 +138,10 @@ export function EmailImport() {
 
         // Parse data rows
         const parsedEmails: EmailData[] = [];
-        for (let i = 1; i < lines.length; i++) {
-          const values = parseCsvLine(lines[i]);
+        for (let i = 1; i < rows.length; i++) {
+          const values = rows[i];
 
-          // Skip empty rows
+          // Skip rows with insufficient columns
           if (values.length < headers.length) continue;
 
           const email: EmailData = {
