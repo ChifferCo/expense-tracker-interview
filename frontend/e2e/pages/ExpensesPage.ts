@@ -166,7 +166,8 @@ export class ExpensesPage {
     await this.formCreateButton.waitFor({ state: 'visible', timeout: 5000 });
     await this.formAmount.waitFor({ state: 'visible', timeout: 5000 });
     // Ensure category options are loaded so form state is valid
-    await this.page.getByTestId('expense-form-category').locator('option').first().waitFor({ state: 'visible', timeout: 5000 });
+    // Options in select elements are not visible until dropdown opens, so check for attached state instead
+    await this.page.getByTestId('expense-form-category').locator('option').first().waitFor({ state: 'attached', timeout: 5000 });
     await this.fillExpenseForm(data);
     await this.submitCreateExpense();
   }

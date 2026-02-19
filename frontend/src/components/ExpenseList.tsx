@@ -71,8 +71,14 @@ export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
   );
 }
 
+/** Format a date string (YYYY-MM-DD or ISO) as local calendar date to avoid timezone shift. */
 function formatDate(dateString: string): string {
-  const date = new Date(dateString);
+  const dateOnly = dateString.split('T')[0];
+  if (!dateOnly || !/^\d{4}-\d{2}-\d{2}$/.test(dateOnly)) {
+    return dateString;
+  }
+  const [y, m, d] = dateOnly.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
   return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',

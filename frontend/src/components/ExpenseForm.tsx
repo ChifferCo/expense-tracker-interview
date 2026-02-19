@@ -9,13 +9,21 @@ interface ExpenseFormProps {
   isLoading?: boolean;
 }
 
+// Helper function to format date as YYYY-MM-DD in local timezone
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function ExpenseForm({ onSubmit, onCancel, initialData, isLoading }: ExpenseFormProps) {
   const { data: categories } = useCategories();
   const [formData, setFormData] = useState<CreateExpenseData>({
     categoryId: initialData?.categoryId || 1,
     amount: initialData?.amount || 0,
     description: initialData?.description || '',
-    date: initialData?.date || new Date().toISOString().split('T')[0],
+    date: initialData?.date || formatLocalDate(new Date()),
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 

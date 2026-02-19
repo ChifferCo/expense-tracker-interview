@@ -1,6 +1,23 @@
 import db from '../db/knex.js';
 import type { Expense, ExpenseWithCategory } from '../types/index.js';
 
+/** Ensure date is always YYYY-MM-DD string (no timezone shift when serialized). */
+function normalizeDate(date: string | Date | undefined): string {
+  if (date === undefined || date === null) return '';
+  if (typeof date === 'string') {
+    return date.includes('T') ? date.split('T')[0]! : date;
+  }
+  const d = date as Date;
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function normalizeExpense<T extends { date?: string | Date }>(row: T): T {
+  return { ...row, date: normalizeDate(row.date) } as T;
+}
+
 interface CreateExpenseParams {
   userId: number;
   categoryId: number;
@@ -55,7 +72,8 @@ export async function listExpenses({
     query = query.where('expenses.description', 'like', `%${search}%`);
   }
 
-  return query;
+  const rows = await query;
+  return rows.map(normalizeExpense);
 }
 
 export async function getExpense(id: number, userId: number): Promise<ExpenseWithCategory | null> {
@@ -70,13 +88,13 @@ export async function getExpense(id: number, userId: number): Promise<ExpenseWit
     .where('expenses.userId', userId)
     .first();
 
-  return expense || null;
+  return expense ? normalizeExpense(expense) : null;
 }
 
 export async function createExpense(params: CreateExpenseParams): Promise<Expense> {
   const [id] = await db('expenses').insert(params);
   const expense = await db('expenses').where({ id }).first<Expense>();
-  return expense!;
+  return normalizeExpense(expense!);
 }
 
 export async function updateExpense(
@@ -89,7 +107,7 @@ export async function updateExpense(
 
   await db('expenses').where({ id, userId }).update(params);
   const expense = await db('expenses').where({ id }).first<Expense>();
-  return expense!;
+  return expense ? normalizeExpense(expense) : null;
 }
 
 export async function deleteExpense(id: number, userId: number): Promise<boolean> {
@@ -99,7 +117,8 @@ export async function deleteExpense(id: number, userId: number): Promise<boolean
 
 export async function getMonthlyTotal(userId: number, year: number, month: number): Promise<number> {
   const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
-  const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+  const lastDay = new Date(year, month, 0);
+  const endDate = `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
 
   const result = await db('expenses')
     .where('userId', userId)
