@@ -1,10 +1,7 @@
 import { Router, Request, Response } from 'express';
-import multer from 'multer';
 import { z } from 'zod';
 import { authenticateToken } from '../middleware/auth.js';
 import {
-  analyzeEmailForReceipt,
-  analyzePdfForReceipt,
   filterReceiptEmails,
   extractExpensesFromEmails,
   type Email,
@@ -13,26 +10,6 @@ import db from '../db/knex.js';
 import logger from '../logger.js';
 
 const router = Router();
-
-// Configure multer for PDF uploads
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-  },
-  fileFilter: (_req, file, cb) => {
-    if (file.mimetype === 'application/pdf') {
-      cb(null, true);
-    } else {
-      cb(new Error('Only PDF files are allowed'));
-    }
-  },
-});
-
-// Schema for email content analysis
-const analyzeEmailSchema = z.object({
-  emailContent: z.string().min(1).max(50000),
-});
 
 // Schema for email data in scan-emails endpoint
 const emailSchema = z.object({
@@ -75,70 +52,6 @@ async function matchCategory(categoryName: string): Promise<{ id: number; name: 
   // Fallback to first category if "Other" doesn't exist
   return { id: categories[0].id, name: categories[0].name };
 }
-
-// POST /api/receipts/analyze - Analyze email content for receipt data
-router.post('/analyze', authenticateToken, async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { emailContent } = analyzeEmailSchema.parse(req.body);
-
-    const result = await analyzeEmailForReceipt(emailContent);
-
-    if (!result.success || !result.data) {
-      res.status(400).json({ error: result.error || 'Failed to analyze email' });
-      return;
-    }
-
-    // Match the suggested category to a database category
-    const category = await matchCategory(result.data.category);
-
-    res.json({
-      ...result.data,
-      categoryId: category.id,
-      categoryName: category.name,
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Invalid request', details: error.errors });
-      return;
-    }
-    logger.error({ err: error }, 'Error analyzing email');
-    res.status(500).json({ error: 'Failed to analyze email' });
-  }
-});
-
-// POST /api/receipts/analyze-pdf - Analyze PDF receipt
-router.post(
-  '/analyze-pdf',
-  authenticateToken,
-  upload.single('file'),
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      if (!req.file) {
-        res.status(400).json({ error: 'No PDF file uploaded' });
-        return;
-      }
-
-      const result = await analyzePdfForReceipt(req.file.buffer);
-
-      if (!result.success || !result.data) {
-        res.status(400).json({ error: result.error || 'Failed to analyze PDF' });
-        return;
-      }
-
-      // Match the suggested category to a database category
-      const category = await matchCategory(result.data.category);
-
-      res.json({
-        ...result.data,
-        categoryId: category.id,
-        categoryName: category.name,
-      });
-    } catch (error) {
-      logger.error({ err: error }, 'Error analyzing PDF');
-      res.status(500).json({ error: 'Failed to analyze PDF' });
-    }
-  }
-);
 
 // POST /api/receipts/scan-emails - Scan uploaded email data for receipts
 router.post('/scan-emails', authenticateToken, async (req: Request, res: Response): Promise<void> => {

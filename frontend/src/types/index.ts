@@ -127,20 +127,6 @@ export interface ImportResult {
   history: ImportHistory;
 }
 
-// Receipt analysis types
-export interface ExtractedReceiptData {
-  merchant: string;
-  amount: number;
-  date: string;
-  category: string;
-  description: string;
-}
-
-export interface ReceiptAnalysisResult extends ExtractedReceiptData {
-  categoryId: number;
-  categoryName: string;
-}
-
 // Email scanning types
 export interface EmailData {
   id: string;

@@ -1,22 +1,6 @@
 import { GoogleGenerativeAI, SchemaType, type Schema } from '@google/generative-ai';
 import logger from '../logger.js';
 
-// Extracted receipt data structure
-export interface ExtractedReceiptData {
-  merchant: string;
-  amount: number;
-  date: string;
-  category: string;
-  description: string;
-}
-
-// Receipt analysis result
-export interface ReceiptAnalysisResult {
-  success: boolean;
-  data?: ExtractedReceiptData;
-  error?: string;
-}
-
 // Email filter result
 export interface EmailFilterResult {
   receiptEmailIds: string[];
@@ -40,22 +24,6 @@ export interface Email {
   date: string;
   body: string;
 }
-
-// Schema for receipt analysis response
-const receiptAnalysisSchema: Schema = {
-  type: SchemaType.OBJECT,
-  properties: {
-    merchant: { type: SchemaType.STRING, description: 'Name of the merchant or business' },
-    amount: { type: SchemaType.NUMBER, description: 'Total amount spent' },
-    date: { type: SchemaType.STRING, description: 'Date of transaction in YYYY-MM-DD format' },
-    category: {
-      type: SchemaType.STRING,
-      description: 'Category of expense: Food, Transport, Entertainment, Bills, Shopping, or Other',
-    },
-    description: { type: SchemaType.STRING, description: 'Brief description of the expense' },
-  },
-  required: ['merchant', 'amount', 'date', 'category', 'description'],
-};
 
 // Schema for email filtering response
 const emailFilterSchema: Schema = {
@@ -105,18 +73,6 @@ function getGenAI(): GoogleGenerativeAI {
   return new GoogleGenerativeAI(apiKey);
 }
 
-// Get model for receipt analysis
-function getReceiptAnalysisModel() {
-  const genAI = getGenAI();
-  return genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
-    generationConfig: {
-      responseMimeType: 'application/json',
-      responseSchema: receiptAnalysisSchema,
-    },
-  });
-}
-
 // Get model for email filtering
 function getEmailFilterModel() {
   const genAI = getGenAI();
@@ -139,75 +95,6 @@ function getBatchExtractModel() {
       responseSchema: batchExtractSchema,
     },
   });
-}
-
-// Analyze email content for receipt data
-export async function analyzeEmailForReceipt(emailContent: string): Promise<ReceiptAnalysisResult> {
-  try {
-    const model = getReceiptAnalysisModel();
-
-    const prompt = `Analyze the following email content and extract receipt/expense information.
-If this is a receipt or transaction confirmation email, extract the details.
-If this is not a receipt email, make your best guess at what expense this might represent.
-
-Email content:
-${emailContent}
-
-Extract the merchant name, amount spent, date of transaction (in YYYY-MM-DD format),
-category (Food, Transport, Entertainment, Bills, Shopping, or Other),
-and a brief description of the expense.`;
-
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
-
-    logger.info({ responseLength: text.length }, 'Receipt analysis completed');
-
-    const data = JSON.parse(text) as ExtractedReceiptData;
-    return { success: true, data };
-  } catch (error) {
-    logger.error({ err: error }, 'Failed to analyze email for receipt');
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to analyze email',
-    };
-  }
-}
-
-// Analyze PDF content for receipt data
-export async function analyzePdfForReceipt(pdfBuffer: Buffer): Promise<ReceiptAnalysisResult> {
-  try {
-    const model = getReceiptAnalysisModel();
-
-    const prompt = `Analyze this PDF document and extract receipt/expense information.
-Extract the merchant name, amount spent, date of transaction (in YYYY-MM-DD format),
-category (Food, Transport, Entertainment, Bills, Shopping, or Other),
-and a brief description of the expense.`;
-
-    const result = await model.generateContent([
-      { text: prompt },
-      {
-        inlineData: {
-          mimeType: 'application/pdf',
-          data: pdfBuffer.toString('base64'),
-        },
-      },
-    ]);
-
-    const response = result.response;
-    const text = response.text();
-
-    logger.info({ responseLength: text.length }, 'PDF receipt analysis completed');
-
-    const data = JSON.parse(text) as ExtractedReceiptData;
-    return { success: true, data };
-  } catch (error) {
-    logger.error({ err: error }, 'Failed to analyze PDF for receipt');
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to analyze PDF',
-    };
-  }
 }
 
 // Filter emails to find those containing receipts
