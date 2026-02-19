@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
@@ -18,8 +18,6 @@ export default function App() {
     isLoginPending,
     isRegisterPending,
   } = useAuth();
-
-  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -47,11 +45,7 @@ export default function App() {
       <Routes>
         <Route
           path="/"
-          element={
-            <Dashboard
-              onEditExpense={(expense) => navigate(`/expenses?edit=${expense.id}`)}
-            />
-          }
+          element={<Dashboard />}
         />
         <Route path="/expenses" element={<Expenses />} />
         <Route path="/import" element={<Import />} />
